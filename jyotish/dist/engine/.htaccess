@@ -1,0 +1,24 @@
+# Put this inside the engine/ folder, renamed to .htaccess.
+# It stops anyone reading the source over HTTP while still allowing the CGI
+# script to run. Without it, jyotish/*.py and the SQLite database are
+# downloadable by anyone who guesses the path.
+
+Options -Indexes
+
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>
+
+<Files "index.cgi">
+  <IfModule mod_authz_core.c>
+    Require all granted
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Allow from all
+  </IfModule>
+</Files>

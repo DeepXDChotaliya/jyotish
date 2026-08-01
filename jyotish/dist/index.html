@@ -1,0 +1,2115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=5">
+<title>Jyotish.ai</title>
+<meta name="description" content="Sidereal Vedic astrology console. Swiss Ephemeris, whole sign houses, Vimshottari to sookshma, nakshatras, ashtakavarga.">
+<meta name="theme-color" content="#05070A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jyotish.ai">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon.svg">
+<style>
+:root{
+  --ink:#05070A;
+  --ink-2:#080B10;
+  --line:rgba(255,255,255,.068);
+  --line-2:rgba(255,255,255,.11);
+  --tx:#E9EEF4;
+  --tx-2:#9CA9B8;
+  --tx-3:#5F6B7A;
+  --mint:#46E3AC;
+  --mint-hi:#93F5D3;
+  --mint-lo:#0E5F46;
+  --amber:#F5B841;
+  --rose:#FF6F7D;
+  --iris:#8093FF;
+  --violet:#A67CFF;
+  --sf-mint:rgba(70,227,172,.09);
+  --sf-amber:rgba(245,184,65,.09);
+  --sf-rose:rgba(255,111,125,.09);
+  --sf-iris:rgba(128,147,255,.09);
+  --glass:rgba(255,255,255,.032);
+  --glass-2:rgba(255,255,255,.055);
+  --r-xs:6px; --r-s:9px; --r-m:13px; --r-l:18px; --r-xl:26px;
+  --font:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono","Roboto Mono",Menlo,monospace;
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --shadow:0 40px 80px -40px rgba(0,0,0,.95), 0 0 0 1px var(--line);
+  --rail:236px;
+  --g-Sun:#F5B841; --g-Moon:#C9D6E4; --g-Mars:#FF6F7D; --g-Mercury:#46E3AC;
+  --g-Jupiter:#FFC978; --g-Venus:#F2A2C0; --g-Saturn:#8093FF;
+  --g-Rahu:#A67CFF; --g-Ketu:#7A8899;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--ink);color:var(--tx);font-family:var(--font);
+  font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(1100px 700px at 12% -10%, rgba(70,227,172,.10), transparent 60%),
+    radial-gradient(900px 600px at 92% 6%, rgba(245,184,65,.075), transparent 62%),
+    radial-gradient(1000px 800px at 50% 108%, rgba(128,147,255,.06), transparent 65%);
+}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.10);border-radius:9px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.18)}
+
+/* ---------- shell ---------- */
+.shell{position:relative;z-index:1;display:grid;grid-template-columns:var(--rail) 1fr;height:100vh}
+
+.rail{
+  border-right:1px solid var(--line);backdrop-filter:blur(30px);
+  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.012));
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.brand{padding:20px 18px 16px;border-bottom:1px solid var(--line)}
+.brand h1{font-size:15px;font-weight:640;letter-spacing:-.2px;display:flex;align-items:center;gap:9px}
+.brand .mark{
+  width:26px;height:26px;flex:none;display:grid;place-items:center;
+  color:var(--mint);filter:drop-shadow(0 0 7px rgba(70,227,172,.4));
+}
+.brand .mark svg{width:100%;height:100%;display:block}
+.wordmark{font-weight:660;letter-spacing:-.3px}
+.wordmark em{font-style:normal;color:var(--mint);font-weight:600}
+.brand p{font-size:11px;color:var(--tx-3);margin-top:5px;letter-spacing:.2px}
+
+nav{padding:10px 10px;overflow-y:auto;flex:1}
+.nav-label{font-size:10px;letter-spacing:.9px;text-transform:uppercase;color:var(--tx-3);padding:12px 10px 6px;font-weight:600}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r-s);
+  color:var(--tx-2);cursor:pointer;font-size:13px;font-weight:500;
+  transition:background .16s var(--ease),color .16s var(--ease);border:1px solid transparent;
+}
+.nav-item:hover{background:rgba(255,255,255,.045);color:var(--tx)}
+.nav-item.on{background:var(--sf-mint);color:var(--mint-hi);border-color:rgba(70,227,172,.18)}
+.nav-item .ico{width:16px;text-align:center;opacity:.85;font-size:13px}
+.nav-item .n{margin-left:auto;font-size:10px;color:var(--tx-3);font-family:var(--mono)}
+
+.rail-foot{padding:12px 14px;border-top:1px solid var(--line);font-size:10.5px;color:var(--tx-3);line-height:1.6}
+.rail-foot b{color:var(--tx-2);font-weight:600}
+
+/* ---------- main ---------- */
+.main{display:flex;flex-direction:column;overflow:hidden}
+.topbar{
+  display:flex;align-items:center;gap:14px;padding:0 22px;height:58px;flex:none;
+  border-bottom:1px solid var(--line);backdrop-filter:blur(30px);
+  background:rgba(255,255,255,.018);
+}
+.who{display:flex;align-items:baseline;gap:10px;min-width:0;flex:0 1 auto;overflow:hidden}
+.who h2{font-size:14.5px;font-weight:620;letter-spacing:-.15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none}
+.who span{font-size:11.5px;color:var(--tx-3);white-space:nowrap;font-family:var(--mono);
+  overflow:hidden;text-overflow:ellipsis;min-width:0}
+.topbar .spacer{flex:1 1 auto;min-width:8px}
+.topbar .chip{flex:none;max-width:230px;overflow:hidden;text-overflow:ellipsis}
+.topbar .btn{flex:none}
+
+.chip{
+  display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:100px;
+  font-size:11px;font-weight:560;letter-spacing:.1px;border:1px solid var(--line-2);
+  background:var(--glass);color:var(--tx-2);white-space:nowrap;
+}
+.chip b{color:var(--tx);font-weight:640}
+.chip.mint{background:var(--sf-mint);border-color:rgba(70,227,172,.22);color:var(--mint-hi)}
+.chip.amber{background:var(--sf-amber);border-color:rgba(245,184,65,.22);color:var(--amber)}
+.chip.rose{background:var(--sf-rose);border-color:rgba(255,111,125,.22);color:var(--rose)}
+.chip.iris{background:var(--sf-iris);border-color:rgba(128,147,255,.22);color:var(--iris)}
+.chip.dot::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
+.chip.mini{padding:1px 7px;font-size:9.5px;letter-spacing:.3px;font-weight:640;text-transform:uppercase}
+
+.btn{
+  display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:var(--r-s);
+  border:1px solid var(--line-2);background:var(--glass);color:var(--tx);cursor:pointer;
+  font-size:12.5px;font-weight:560;font-family:inherit;
+  transition:background .15s var(--ease),border-color .15s var(--ease),transform .1s var(--ease);
+}
+.btn:hover{background:var(--glass-2);border-color:rgba(255,255,255,.18)}
+.btn:active{transform:translateY(1px)}
+.btn.pri{background:linear-gradient(160deg,rgba(70,227,172,.22),rgba(70,227,172,.10));border-color:rgba(70,227,172,.38);color:var(--mint-hi)}
+.btn.pri:hover{background:linear-gradient(160deg,rgba(70,227,172,.30),rgba(70,227,172,.15))}
+.btn.sm{padding:5px 10px;font-size:11.5px}
+
+/* ---------- content ---------- */
+.content{overflow-y:auto;flex:1;padding:22px 26px 90px;scroll-behavior:smooth}
+.page{display:none;animation:fade .3s var(--ease)}
+.page.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+
+.page-head{margin-bottom:18px}
+.page-head h3{font-size:19px;font-weight:650;letter-spacing:-.35px}
+.page-head p{font-size:12.5px;color:var(--tx-3);margin-top:3px;max-width:74ch}
+
+.card{
+  background:var(--glass);border:1px solid var(--line);border-radius:var(--r-l);
+  backdrop-filter:blur(24px);box-shadow:0 26px 54px -34px rgba(0,0,0,.9);
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:"";position:absolute;inset:0 0 auto;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);
+}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.card-h h4{font-size:12.5px;font-weight:640;letter-spacing:.1px}
+.card-h .sub{font-size:11px;color:var(--tx-3);font-family:var(--mono)}
+.card-h .spacer{flex:1}
+.card-b{padding:16px 18px}
+
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.gauto{grid-template-columns:repeat(auto-fill,minmax(310px,1fr))}
+@media(max-width:1240px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.g2,.g3,.g4,.splitgrid{grid-template-columns:1fr}}
+
+.stat{padding:13px 15px}
+.stat .k{font-size:10px;letter-spacing:.7px;text-transform:uppercase;color:var(--tx-3);font-weight:600}
+.stat .v{font-size:20px;font-weight:640;letter-spacing:-.5px;margin-top:5px;line-height:1.15}
+.stat .m{font-size:11.5px;color:var(--tx-2);margin-top:4px}
+
+kbd,.mono{font-family:var(--mono);font-size:11.5px}
+
+/* ---------- form drawer ---------- */
+.drawer{
+  position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(9px);
+  z-index:50;display:none;align-items:flex-start;justify-content:center;padding:60px 20px;overflow-y:auto;
+}
+.drawer.on{display:flex;animation:fade .22s var(--ease)}
+.drawer-in{width:min(760px,100%);border-radius:var(--r-xl);background:linear-gradient(170deg,#0C1118,#080B10);
+  border:1px solid var(--line-2);box-shadow:var(--shadow);overflow:hidden}
+.drawer-h{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center}
+.drawer-h h3{font-size:15px;font-weight:640}
+.drawer-h .spacer{flex:1}
+.drawer-b{padding:20px 22px}
+.field{margin-bottom:14px;position:relative}
+.field label{display:block;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--tx-3);font-weight:600;margin-bottom:6px}
+.field input,.field select{
+  width:100%;padding:9px 12px;border-radius:var(--r-s);border:1px solid var(--line-2);
+  background:rgba(0,0,0,.34);color:var(--tx);font-family:inherit;font-size:13.5px;
+  transition:border-color .15s var(--ease),background .15s var(--ease);
+}
+.field input:focus,.field select:focus{outline:none;border-color:rgba(70,227,172,.45);background:rgba(0,0,0,.5)}
+.field .hint{font-size:10.5px;color:var(--tx-3);margin-top:4px}
+.row{display:grid;gap:12px}
+.r2{grid-template-columns:1fr 1fr}
+.r3{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:620px){.r2,.r3{grid-template-columns:1fr}}
+.ac{
+  position:absolute;top:100%;left:0;right:0;z-index:20;margin-top:4px;max-height:240px;overflow-y:auto;
+  background:#0B1017;border:1px solid var(--line-2);border-radius:var(--r-m);box-shadow:var(--shadow);display:none;
+}
+.ac.on{display:block}
+.ac div{padding:8px 12px;cursor:pointer;font-size:12.5px;border-bottom:1px solid var(--line)}
+.ac div:last-child{border-bottom:0}
+.ac div:hover{background:var(--sf-mint);color:var(--mint-hi)}
+.ac div small{display:block;color:var(--tx-3);font-size:10.5px;font-family:var(--mono)}
+.ac .ac-msg{color:var(--tx-3);cursor:default}
+.ac .ac-msg:hover{background:transparent;color:var(--tx-3)}
+@media(max-width:860px){ .ac div{padding:12px 13px;min-height:48px} }
+
+/* ---------- charts ---------- */
+.chart-wrap{display:flex;justify-content:center;padding:8px}
+svg.rasi{width:100%;max-width:420px;height:auto}
+svg.rasi .frame{fill:none;stroke:rgba(255,255,255,.16);stroke-width:1}
+svg.rasi .cell{fill:rgba(255,255,255,.014);stroke:rgba(255,255,255,.10);stroke-width:.8;
+  transition:fill .18s var(--ease)}
+svg.rasi .cell:hover{fill:rgba(70,227,172,.075)}
+svg.rasi .cell.lag{fill:rgba(70,227,172,.06)}
+svg.rasi text{font-family:var(--font);dominant-baseline:middle;text-anchor:middle}
+svg.rasi .hn{font-size:8.5px;fill:var(--tx-3);font-weight:600}
+svg.rasi .sn{font-size:10px;fill:rgba(233,238,244,.5);font-weight:600}
+svg.rasi .gr{font-size:11px;font-weight:660}
+svg.rasi .gd{font-size:7.5px;fill:var(--tx-3);font-family:var(--mono)}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:6px 12px 12px}
+.legend span{font-size:10.5px;color:var(--tx-3);display:inline-flex;align-items:center;gap:4px}
+.legend i{width:7px;height:7px;border-radius:50%;display:inline-block}
+
+/* ---------- tables ---------- */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;font-size:10px;letter-spacing:.7px;text-transform:uppercase;color:var(--tx-3);
+   font-weight:600;padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.035);vertical-align:middle}
+tbody tr{transition:background .13s var(--ease);cursor:default}
+tbody tr:hover{background:rgba(255,255,255,.028)}
+tbody tr:last-child td{border-bottom:0}
+td.num{font-family:var(--mono);font-size:11.5px;color:var(--tx-2)}
+
+.gname{font-weight:620;display:inline-flex;align-items:center;gap:6px}
+.gname i{width:7px;height:7px;border-radius:50%;flex:none;box-shadow:0 0 7px currentColor}
+
+/* ---------- strength ---------- */
+.bar{height:5px;border-radius:100px;background:rgba(255,255,255,.07);overflow:hidden;min-width:56px}
+.bar i{display:block;height:100%;border-radius:100px;transition:width .5s var(--ease)}
+.s-hi{background:linear-gradient(90deg,var(--mint-lo),var(--mint))}
+.s-md{background:linear-gradient(90deg,rgba(245,184,65,.4),var(--amber))}
+.s-lo{background:linear-gradient(90deg,rgba(255,111,125,.35),var(--rose))}
+
+/* ---------- house cards ---------- */
+.hcard{cursor:pointer;transition:border-color .18s var(--ease),transform .18s var(--ease)}
+.hcard:hover{border-color:var(--line-2);transform:translateY(-1px)}
+.hcard .hh{display:flex;align-items:flex-start;gap:12px;padding:14px 16px}
+.hnum{
+  width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none;
+  font-family:var(--mono);font-size:13px;font-weight:700;
+  background:var(--glass-2);border:1px solid var(--line-2);color:var(--tx-2);
+}
+.hcard .ht{flex:1;min-width:0}
+.hcard .ht h5{font-size:13.5px;font-weight:640;letter-spacing:-.15px}
+.hcard .ht p{font-size:11.5px;color:var(--tx-3);margin-top:2px}
+.hbody{display:none;padding:0 16px 16px;border-top:1px solid var(--line);margin-top:2px;padding-top:14px}
+.hcard.open .hbody{display:block;animation:fade .25s var(--ease)}
+.hcard.open .hnum{background:var(--sf-mint);border-color:rgba(70,227,172,.3);color:var(--mint-hi)}
+
+.block{margin-bottom:14px}
+.block:last-child{margin-bottom:0}
+.block h6{font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--tx-3);font-weight:640;margin-bottom:7px;
+  display:flex;align-items:center;gap:7px}
+.block h6::after{content:"";flex:1;height:1px;background:var(--line)}
+.block p{font-size:12.5px;color:var(--tx-2);line-height:1.65}
+.block p.lead{color:var(--tx);font-size:13px}
+
+.note{
+  padding:10px 13px;border-radius:var(--r-m);background:rgba(255,255,255,.028);
+  border:1px solid var(--line);border-left:2px solid var(--line-2);font-size:12px;color:var(--tx-2);
+  line-height:1.62;margin-bottom:7px;
+}
+.note:last-child{margin-bottom:0}
+.note b{color:var(--tx);font-weight:620}
+.note.mint{border-left-color:var(--mint);background:var(--sf-mint)}
+.note.amber{border-left-color:var(--amber);background:var(--sf-amber)}
+.note.rose{border-left-color:var(--rose);background:var(--sf-rose)}
+.note.iris{border-left-color:var(--iris);background:var(--sf-iris)}
+
+ul.reasons{list-style:none;font-size:12px;color:var(--tx-2)}
+ul.reasons li{padding:5px 0 5px 16px;position:relative;line-height:1.6}
+ul.reasons li::before{content:"";position:absolute;left:3px;top:12px;width:4px;height:4px;border-radius:50%;background:var(--tx-3)}
+
+/* ---------- yogas ---------- */
+.yoga{padding:15px 17px}
+.yoga .yh{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.yoga .yh h5{font-size:13.5px;font-weight:650;letter-spacing:-.15px}
+.yoga .yh .spacer{flex:1}
+.yoga .why{font-size:12px;color:var(--tx-2);line-height:1.62;margin-bottom:9px}
+.yoga .eff{font-size:12.5px;color:var(--tx);line-height:1.62;padding-top:9px;border-top:1px solid var(--line)}
+.yoga .gl{display:flex;gap:5px;margin-top:9px;flex-wrap:wrap}
+
+/* ---------- dasha ---------- */
+.crumb{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.crumb button{
+  padding:5px 11px;border-radius:100px;border:1px solid var(--line-2);background:var(--glass);
+  color:var(--tx-2);font-size:11.5px;cursor:pointer;font-family:inherit;font-weight:560;
+  transition:all .15s var(--ease);
+}
+.crumb button:hover{background:var(--glass-2);color:var(--tx)}
+.crumb button.on{background:var(--sf-mint);border-color:rgba(70,227,172,.28);color:var(--mint-hi)}
+.crumb .sep{color:var(--tx-3);font-size:11px}
+
+.prow{
+  display:grid;grid-template-columns:118px 1fr auto;gap:14px;align-items:center;
+  padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.035);cursor:pointer;
+  transition:background .13s var(--ease);
+}
+.prow:hover{background:rgba(255,255,255,.03)}
+.prow:last-child{border-bottom:0}
+.prow.now{background:var(--sf-mint)}
+.prow.now:hover{background:rgba(70,227,172,.13)}
+.prow.past{opacity:.44}
+.prow .pl{display:flex;align-items:center;gap:8px;font-weight:620;font-size:13px}
+.prow .pd{font-family:var(--mono);font-size:11.5px;color:var(--tx-2);white-space:nowrap}
+.prow .pdur{font-size:11px;color:var(--tx-3);text-align:right;white-space:nowrap;font-family:var(--mono)}
+.prow .track{height:4px;border-radius:100px;background:rgba(255,255,255,.06);margin-top:5px;overflow:hidden}
+.prow .track i{display:block;height:100%;background:linear-gradient(90deg,var(--mint-lo),var(--mint))}
+
+.chain-card{padding:15px 17px;position:relative;overflow:hidden}
+.chain-card .lv{font-size:9.5px;letter-spacing:.9px;text-transform:uppercase;color:var(--tx-3);font-weight:640}
+.chain-card .ld{font-size:22px;font-weight:660;letter-spacing:-.5px;margin-top:4px;display:flex;align-items:center;gap:8px}
+.chain-card .dt{font-family:var(--mono);font-size:11px;color:var(--tx-2);margin-top:6px}
+.chain-card .pr{margin-top:11px}
+.chain-card .pct{display:flex;justify-content:space-between;font-size:10.5px;color:var(--tx-3);margin-top:5px;font-family:var(--mono)}
+
+/* ---------- transits ---------- */
+.tl{position:relative;padding-left:20px}
+.tl::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:1px;background:var(--line-2)}
+.tl-item{position:relative;padding:9px 0 9px 4px;border-bottom:1px solid rgba(255,255,255,.032)}
+.tl-item:last-child{border-bottom:0}
+.tl-item::before{content:"";position:absolute;left:-19px;top:15px;width:7px;height:7px;border-radius:50%;
+  background:var(--ink);border:1.5px solid var(--tx-3)}
+.tl-item.soon::before{border-color:var(--mint);box-shadow:0 0 9px rgba(70,227,172,.55)}
+.tl-item .td{font-family:var(--mono);font-size:10.5px;color:var(--tx-3);letter-spacing:.2px}
+.tl-item .tt{font-size:13px;font-weight:600;margin-top:2px}
+.tl-item .tn{font-size:11.5px;color:var(--tx-2);margin-top:3px;line-height:1.55}
+
+/* ---------- varga ---------- */
+.vcard{padding:12px}
+.vcard h5{font-size:12px;font-weight:640;text-align:center;margin-bottom:2px}
+.vcard p{font-size:10.5px;color:var(--tx-3);text-align:center;margin-bottom:8px}
+
+/* ---------- reading hierarchy ----------
+   Four content classes, kept visually distinct so a page can be skimmed:
+     .hl-title   the finding itself, largest and highest contrast
+     .t-read     what it means, comfortable reading size
+     .t-pred     a dated prediction, amber, always carries a date badge
+     .t-fact     the chart evidence, mono and recessive
+   Accent colour is semantic everywhere: mint supports, amber times,
+   rose warns, iris explains the mechanism.                              */
+.hl{padding:16px 18px;position:relative}
+.hl::after{content:"";position:absolute;left:0;top:14px;bottom:14px;width:2px;border-radius:2px}
+.hl.k-core::after{background:var(--tx-3)}
+.hl.k-strength::after{background:var(--mint)}
+.hl.k-pressure::after{background:var(--rose)}
+.hl.k-now::after{background:var(--iris)}
+.hl.k-prediction::after{background:var(--amber)}
+.hl.k-work::after{background:var(--mint-hi)}
+
+.hl-kind{font-size:9.5px;letter-spacing:1.1px;text-transform:uppercase;font-weight:700;margin-bottom:6px}
+.k-core .hl-kind{color:var(--tx-3)}
+.k-strength .hl-kind{color:var(--mint)}
+.k-pressure .hl-kind{color:var(--rose)}
+.k-now .hl-kind{color:var(--iris)}
+.k-prediction .hl-kind{color:var(--amber)}
+.k-work .hl-kind{color:var(--mint-hi)}
+
+.hl-title{font-size:17px;font-weight:660;letter-spacing:-.35px;line-height:1.3;color:var(--tx);margin-bottom:7px}
+.t-read{font-size:13.5px;line-height:1.7;color:var(--tx-2)}
+.t-read strong,.t-read b{color:var(--tx);font-weight:620}
+.t-pred{font-size:13px;line-height:1.65;color:var(--amber)}
+.t-fact{font-family:var(--mono);font-size:11px;line-height:1.6;color:var(--tx-3);
+  margin-top:9px;padding-top:9px;border-top:1px dashed rgba(255,255,255,.08)}
+.t-fact::before{content:"evidence  ";letter-spacing:.8px;text-transform:uppercase;
+  font-size:9px;color:var(--tx-3);opacity:.7}
+
+.datebadge{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:100px;
+  background:var(--sf-amber);border:1px solid rgba(245,184,65,.3);color:var(--amber);
+  font-family:var(--mono);font-size:10.5px;font-weight:600;margin-right:7px;white-space:nowrap}
+
+.keyline{display:grid;grid-template-columns:auto 1fr;gap:9px 13px;align-items:baseline}
+.keyline dt{font-size:10px;letter-spacing:.7px;text-transform:uppercase;color:var(--tx-3);
+  font-weight:640;white-space:nowrap}
+.keyline dd{font-size:13px;color:var(--tx)}
+
+.legend-key{display:flex;flex-wrap:wrap;gap:12px;padding:11px 16px;font-size:10.5px;color:var(--tx-3)}
+.legend-key span{display:inline-flex;align-items:center;gap:5px}
+.legend-key i{width:8px;height:2px;border-radius:2px;display:inline-block}
+
+/* ---------- nakshatra ---------- */
+.nk{padding:14px 16px}
+.nk .nh{display:flex;align-items:baseline;gap:8px;margin-bottom:3px}
+.nk .nh h5{font-size:14px;font-weight:650;letter-spacing:-.2px}
+.nk .nh .idx{font-family:var(--mono);font-size:10.5px;color:var(--tx-3)}
+.nk .nh .spacer{flex:1}
+.nk .deity{font-size:11.5px;color:var(--tx-3);margin-bottom:10px}
+.nk dl{margin-bottom:10px}
+.tara-good{color:var(--mint)} .tara-bad{color:var(--rose)}
+.nkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:5px}
+.nkcell{padding:6px 7px;border-radius:var(--r-xs);border:1px solid var(--line);font-size:10px;
+  background:rgba(255,255,255,.02);line-height:1.35}
+.nkcell.good{border-color:rgba(70,227,172,.28);background:var(--sf-mint)}
+.nkcell.bad{border-color:rgba(255,111,125,.26);background:var(--sf-rose)}
+.nkcell.janma{border-color:rgba(245,184,65,.45);background:var(--sf-amber)}
+.nkcell b{display:block;font-size:10.5px;color:var(--tx);font-weight:640}
+.nkcell span{color:var(--tx-3);font-family:var(--mono);font-size:9px}
+
+/* ---------- life areas ---------- */
+.area{padding:0;overflow:hidden}
+.area .ah{display:flex;align-items:center;gap:11px;padding:13px 16px;cursor:pointer;transition:background .14s var(--ease)}
+.area .ah:hover{background:rgba(255,255,255,.028)}
+.area .ah h5{font-size:13.5px;font-weight:640;letter-spacing:-.1px}
+.area .ah .pl{font-size:11px;color:var(--tx-3);margin-top:1px}
+.area .ah .spacer{flex:1}
+.area .meter{width:70px;height:5px;border-radius:100px;background:rgba(255,255,255,.07);overflow:hidden;flex:none}
+.area .meter i{display:block;height:100%;border-radius:100px}
+.area .abody{display:none;padding:0 16px 15px;border-top:1px solid var(--line);padding-top:13px}
+.area.open .abody{display:block;animation:fade .24s var(--ease)}
+.area .caret{color:var(--tx-3);font-size:11px;transition:transform .2s var(--ease);flex:none}
+.area.open .caret{transform:rotate(90deg)}
+.st-good{color:var(--mint)} .st-ok{color:var(--tx-2)}
+.st-mix{color:var(--amber)} .st-bad{color:var(--rose)}
+
+.wnext{display:grid;grid-template-columns:104px 1fr;gap:13px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.035)}
+.wnext:last-child{border-bottom:0}
+.wnext .wd{font-family:var(--mono);font-size:11px;color:var(--tx-3);line-height:1.5}
+.wnext .wl{font-size:13px;font-weight:620;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.wnext .wt{font-size:12px;color:var(--tx-2);margin-top:4px;line-height:1.6}
+
+.phase{padding:12px 14px;border-radius:var(--r-m);border:1px solid var(--line);margin-bottom:9px;
+  background:rgba(255,255,255,.02)}
+.phase.on{border-color:rgba(245,184,65,.35);background:var(--sf-amber)}
+.phase h6{font-size:12px;font-weight:640;margin-bottom:3px;text-transform:none;letter-spacing:0;color:var(--tx)}
+.phase h6::after{display:none}
+.phase .pm{font-family:var(--mono);font-size:10.5px;color:var(--tx-3);margin-bottom:7px}
+.phase p{font-size:12px;color:var(--tx-2);line-height:1.62;margin-bottom:5px}
+.phase p b{color:var(--tx)}
+
+.edge{padding:15px 17px}
+.edge .eh{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.edge .eh h5{font-size:13.5px;font-weight:650}
+.edge .eh .spacer{flex:1}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+
+/* ---------- misc ---------- */
+.empty{padding:44px 20px;text-align:center;color:var(--tx-3);font-size:13px}
+.spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.14);border-top-color:var(--mint);
+  border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+.err{padding:12px 15px;border-radius:var(--r-m);background:var(--sf-rose);border:1px solid rgba(255,111,125,.28);
+  color:var(--rose);font-size:12.5px;margin-bottom:14px}
+.seg{display:inline-flex;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:100px;padding:2px}
+.seg button{padding:4px 12px;border-radius:100px;border:0;background:transparent;color:var(--tx-3);
+  font-size:11.5px;cursor:pointer;font-family:inherit;font-weight:560;transition:all .15s var(--ease)}
+.seg button.on{background:var(--glass-2);color:var(--tx)}
+.hide{display:none!important}
+
+/* ---------- mobile app shell ----------
+   Below 860px the sidebar is replaced by a native-feeling bottom tab bar with
+   a horizontally scrolling section strip, the form becomes a bottom sheet, and
+   safe-area insets are respected so it behaves when installed to a home
+   screen.                                                                */
+.tabbar,.sectionbar,.mobilebrand{display:none}
+/* Two-column splits declared as a class rather than inline, so the mobile
+   media query can actually collapse them. Inline styles win over media
+   queries, which is exactly the bug this avoids. */
+.splitgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+
+@media(max-width:1180px){
+  :root{--rail:198px}
+  .who span{display:none}
+}
+@media(max-width:1180px) and (min-width:861px){
+  .nav-item .n{display:none}
+}
+
+@media(max-width:860px){
+  html,body{overscroll-behavior-y:none}
+  .shell{grid-template-columns:1fr}
+  .rail{display:none}
+  .topbar{height:auto;min-height:54px;padding:calc(env(safe-area-inset-top) + 9px) 14px 9px;gap:9px}
+  .topbar .mobilebrand{display:flex;align-items:center;gap:8px;flex:none}
+  .topbar .mobilebrand .mark{width:22px;height:22px;color:var(--mint);flex:none}
+  .topbar .mobilebrand .mark svg{width:100%;height:100%;display:block}
+  .topbar .mobilebrand .wordmark{font-size:14px}
+  .who h2{font-size:13px;max-width:36vw}
+  #chip-dasha{max-width:none;font-size:10.5px;padding:3px 9px}
+  #chip-ss{display:none!important}
+  #btn-open{padding:7px 11px;font-size:12px}
+
+  .content{padding:12px 13px calc(env(safe-area-inset-bottom) + 108px);
+    -webkit-overflow-scrolling:touch}
+  .page-head{margin-bottom:13px}
+  .page-head h3{font-size:20px;letter-spacing:-.4px}
+  .page-head p{font-size:12px}
+
+  /* section strip, scrolls horizontally under the top bar */
+  .sectionbar{display:flex;gap:6px;overflow-x:auto;padding:9px 13px;flex:none;
+    border-bottom:1px solid var(--line);background:rgba(255,255,255,.018);
+    backdrop-filter:blur(30px);scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .sectionbar::-webkit-scrollbar{display:none}
+  .sectionbar button{flex:none;padding:7px 13px;border-radius:100px;border:1px solid var(--line-2);
+    background:var(--glass);color:var(--tx-2);font-size:12.5px;font-weight:560;font-family:inherit;
+    white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .sectionbar button.on{background:var(--sf-mint);border-color:rgba(70,227,172,.3);color:var(--mint-hi)}
+
+  /* bottom tab bar */
+  .tabbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;
+    padding:6px 4px calc(env(safe-area-inset-bottom) + 6px);
+    background:rgba(8,11,16,.92);backdrop-filter:blur(28px) saturate(1.4);
+    border-top:1px solid var(--line)}
+  .tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+    padding:7px 2px;border:0;background:transparent;color:var(--tx-3);
+    font-family:inherit;font-size:9.5px;font-weight:600;letter-spacing:.2px;cursor:pointer;
+    -webkit-tap-highlight-color:transparent;border-radius:var(--r-s);min-height:48px}
+  .tabbar button .ico{font-size:17px;line-height:1}
+  .tabbar button.on{color:var(--mint)}
+  .tabbar button:active{background:rgba(255,255,255,.05)}
+
+  /* form becomes a bottom sheet */
+  .drawer{padding:0;align-items:flex-end}
+  .drawer-in{width:100%;max-height:92vh;overflow-y:auto;border-radius:var(--r-xl) var(--r-xl) 0 0;
+    padding-bottom:calc(env(safe-area-inset-bottom) + 10px);animation:sheet .3s var(--ease)}
+  @keyframes sheet{from{transform:translateY(100%)}to{transform:none}}
+  .drawer-in::before{content:"";display:block;width:38px;height:4px;border-radius:4px;
+    background:rgba(255,255,255,.2);margin:10px auto 0}
+  .drawer-h{padding:12px 18px}
+  .drawer-b{padding:16px 18px}
+  .field input,.field select{padding:12px 13px;font-size:16px}  /* 16px stops iOS zoom */
+  .btn{padding:11px 15px;font-size:13.5px;min-height:44px}
+  .btn.sm{min-height:36px;padding:7px 12px}
+
+  /* touch sizing */
+  .card{border-radius:var(--r-m)}
+  .card-b{padding:14px 15px}
+  .card-h{padding:13px 15px}
+  .hcard .hh,.area .ah{padding:14px 15px;min-height:56px}
+  .nav-item,.crumb button,.seg button{min-height:38px}
+  .prow{padding:13px 15px;min-height:56px}
+  table{font-size:12px}
+  th,td{padding:9px 10px}
+  .g2,.g3,.g4,.gauto,.splitgrid{grid-template-columns:1fr!important}
+  .grid[style*="minmax(0,1.05fr)"]{grid-template-columns:1fr!important}
+  .hl-title{font-size:16px}
+  .hl{padding:15px 16px}
+  svg.rasi{max-width:100%}
+  .nkgrid{grid-template-columns:repeat(auto-fill,minmax(84px,1fr))}
+}
+
+@media(max-width:520px){
+  .who h2{display:none}                  /* the chart name lives on Overview */
+  .prow{grid-template-columns:92px 1fr;gap:9px}
+  .prow .pdur{grid-column:2;text-align:left;margin-top:3px}
+  .keyline{grid-template-columns:1fr;gap:2px 0}
+  .keyline dt{margin-top:7px}
+  .tabbar button{font-size:9px}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">
+      <h1><span class="mark"><svg viewBox="0 0 48 48" aria-label="Sri Yantra">
+        <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+          <circle cx="24" cy="24" r="21.5" stroke-width="1.2"/>
+          <circle cx="24" cy="24" r="17.5" stroke-width="1"/>
+          <path d="M24 6.5 41 35.5 7 35.5Z"/>
+          <path d="M24 41.5 7 12.5 41 12.5Z"/>
+          <path d="M24 14 33.5 30.5 14.5 30.5Z" stroke-width="1.1"/>
+          <path d="M24 34 14.5 17.5 33.5 17.5Z" stroke-width="1.1"/>
+        </g><circle cx="24" cy="24" r="2.6" fill="currentColor"/>
+      </svg></span> <span class="wordmark">Jyotish<em>.ai</em></span></h1>
+      <p>Sidereal · Lahiri · Whole sign</p>
+    </div>
+    <nav id="nav">
+      <div class="nav-item on" data-page="overview"><span class="ico">◈</span> Overview</div>
+      <div class="nav-label">Read</div>
+      <div class="nav-item" data-page="rightnow"><span class="ico">◐</span> Right now</div>
+      <div class="nav-item" data-page="character"><span class="ico">☗</span> Character &amp; work</div>
+      <div class="nav-item" data-page="psyche"><span class="ico">☯</span> Psyche</div>
+      <div class="nav-label">Chart</div>
+      <div class="nav-item" data-page="lords"><span class="ico">⌂</span> Houses &amp; lords <span class="n">12</span></div>
+      <div class="nav-item" data-page="grahas"><span class="ico">☉</span> Grahas <span class="n">9</span></div>
+      <div class="nav-item" data-page="nakshatras"><span class="ico">✧</span> Nakshatras <span class="n">27</span></div>
+      <div class="nav-item" data-page="yogas"><span class="ico">✦</span> Yogas <span class="n" id="n-yoga">0</span></div>
+      <div class="nav-label">Time</div>
+      <div class="nav-item" data-page="dasha"><span class="ico">◷</span> Dashas</div>
+      <div class="nav-item" data-page="segments"><span class="ico">▤</span> Segments</div>
+      <div class="nav-item" data-page="transits"><span class="ico">◎</span> Transits</div>
+      <div class="nav-label">Depth</div>
+      <div class="nav-item" data-page="ashtakavarga"><span class="ico">⁘</span> Ashtakavarga</div>
+      <div class="nav-item" data-page="vargas"><span class="ico">◱</span> Divisional charts</div>
+      <div class="nav-item" data-page="reference"><span class="ico">≡</span> Reference</div>
+    </nav>
+    <div class="rail-foot">
+      <b>Swiss Ephemeris</b><br>
+      Mean node · <span id="ayan-foot">Lahiri</span><br>
+      <span id="verify-foot" style="color:var(--amber)">Verify before you trust it</span>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="mobilebrand">
+        <span class="mark"><svg viewBox="0 0 48 48" aria-hidden="true">
+          <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+            <circle cx="24" cy="24" r="21.5" stroke-width="1.2"/>
+            <path d="M24 6.5 41 35.5 7 35.5Z"/><path d="M24 41.5 7 12.5 41 12.5Z"/>
+          </g><circle cx="24" cy="24" r="2.6" fill="currentColor"/></svg></span>
+      </div>
+      <div class="who">
+        <h2 id="who-name">No chart loaded</h2>
+        <span id="who-meta"></span>
+      </div>
+      <div class="spacer"></div>
+      <span class="chip mint dot hide" id="chip-dasha"></span>
+      <span class="chip amber hide" id="chip-ss"></span>
+      <button class="btn pri" id="btn-open">Cast a chart</button>
+    </div>
+
+    <div class="sectionbar" id="sectionbar"></div>
+
+    <div class="content" id="content">
+      <div id="err-slot"></div>
+
+      <!-- RIGHT NOW -->
+      <section class="page" data-page="rightnow">
+        <div class="page-head"><h3>Right now</h3>
+          <p>What the running period is doing to each part of your life, why, and what changes next. Plain language, with the chart reasoning kept underneath each claim.</p></div>
+        <div id="rightnow"></div>
+      </section>
+
+      <!-- CHARACTER -->
+      <section class="page" data-page="character">
+        <div class="page-head"><h3>Character and the work</h3>
+          <p>The lagna is the vantage point the whole chart is experienced from. Where a difficult house is wired back to it, the difficulty is partly temperament, and temperament can be changed. Where it is not, this page says so.</p></div>
+        <div id="character"></div>
+      </section>
+
+      <!-- OVERVIEW -->
+      <section class="page on" data-page="overview">
+        <div class="page-head"><h3>Overview</h3>
+          <p>The main findings first, then the chart they came from. Each finding carries the evidence that produced it, so nothing here has to be taken on trust.</p></div>
+        <div id="ov"></div>
+      </section>
+
+      <!-- PSYCHE -->
+      <section class="page" data-page="psyche">
+        <div class="page-head"><h3>Psyche</h3>
+          <p>The chart read as a description of a person rather than a set of events. Three layers of self, the grahas as psychological functions, and what a transit does on the inside.</p></div>
+        <div id="psyche"></div>
+      </section>
+
+      <!-- NAKSHATRAS -->
+      <section class="page" data-page="nakshatras">
+        <div class="page-head"><h3>Nakshatras</h3>
+          <p>Twenty-seven lunar mansions. Where every graha sits, its pada and pada lord, the nakshatra dispositor chain, and the tara bala cycle counted from your birth star.</p></div>
+        <div id="nakshatras"></div>
+      </section>
+
+      <!-- LORDS -->
+      <section class="page" data-page="lords">
+        <div class="page-head"><h3>Houses and their lords</h3>
+          <p>Where every house lord has actually gone, what that has traditionally meant, and what modifies it in this chart. Open a house for the full chain of reasoning.</p></div>
+        <div id="lords"></div>
+      </section>
+
+      <!-- GRAHAS -->
+      <section class="page" data-page="grahas">
+        <div class="page-head"><h3>Grahas</h3><p>Position, dignity, strength and what each graha is carrying in this chart.</p></div>
+        <div id="grahas"></div>
+      </section>
+
+      <!-- YOGAS -->
+      <section class="page" data-page="yogas">
+        <div class="page-head"><h3>Yogas</h3><p>Every combination the detectors found, with the placements that triggered it so you can check it by eye.</p></div>
+        <div id="yogas"></div>
+      </section>
+
+      <!-- DASHA -->
+      <section class="page" data-page="dasha">
+        <div class="page-head"><h3>Vimshottari dasha</h3><p>Date to date, four levels deep. Click any period to open the level below it.</p></div>
+        <div id="dasha"></div>
+      </section>
+
+      <!-- SEGMENTS -->
+      <section class="page" data-page="segments">
+        <div class="page-head"><h3>Segments</h3><p>A flat dated scan of any window, at any level. Use it to find the period you want without walking the tree.</p></div>
+        <div id="segments"></div>
+      </section>
+
+      <!-- TRANSITS -->
+      <section class="page" data-page="transits">
+        <div class="page-head"><h3>Transits</h3><p>Where the grahas are now against this chart, and the dates they change sign or station.</p></div>
+        <div id="transits"></div>
+      </section>
+
+      <!-- VARGAS -->
+      <section class="page" data-page="vargas">
+        <div class="page-head"><h3>Divisional charts</h3><p>Pure arithmetic on the rasi longitudes. The navamsa is the strength test for every graha.</p></div>
+        <div id="vargas"></div>
+      </section>
+
+      <!-- ASHTAKAVARGA -->
+      <section class="page" data-page="ashtakavarga">
+        <div class="page-head"><h3>Ashtakavarga</h3>
+          <p>Not how strong a graha is, but how much support each sign actually has, pooled from all eight reference points. 337 bindus across twelve signs. The most practical number in the system.</p></div>
+        <div id="ashtakavarga"></div>
+      </section>
+
+      <!-- REFERENCE -->
+      <section class="page" data-page="reference">
+        <div class="page-head"><h3>Reference</h3><p>The tables the readings are built from.</p></div>
+        <div id="reference"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<nav class="tabbar" id="tabbar"></nav>
+
+<!-- FORM -->
+<div class="drawer" id="drawer">
+  <div class="drawer-in">
+    <div class="drawer-h">
+      <h3>Birth data</h3><div class="spacer"></div>
+      <button class="btn sm" id="btn-close">Close</button>
+    </div>
+    <div class="drawer-b">
+      <div class="err hide" id="offline" style="margin-bottom:14px"></div>
+      <div id="form-err"></div>
+      <div class="field" id="saved-wrap" style="display:none"><label>Saved charts</label>
+        <select id="f-saved"><option value="">Start a new chart</option></select>
+        <div class="hint">Loads the birth record back into this form</div></div>
+      <div class="field"><label>Name</label><input id="f-name" placeholder="Whose chart is this" autocomplete="off"></div>
+      <div class="row r2">
+        <div class="field"><label>Date of birth</label><input id="f-date" type="date" value="1990-01-01"></div>
+        <div class="field"><label>Time of birth</label><input id="f-time" type="time" step="60" value="12:00">
+          <div class="hint">Local civil time at the place of birth</div></div>
+      </div>
+      <div class="field"><label>Place</label>
+        <input id="f-place" placeholder="Start typing a city" autocomplete="off">
+        <div class="ac" id="ac"></div>
+        <div class="hint" id="place-note">Resolves to coordinates and an IANA zone. Override below if you need to.</div>
+      </div>
+      <div class="row r3">
+        <div class="field"><label>Latitude</label><input id="f-lat" type="number" step="0.0001" value="28.6139"></div>
+        <div class="field"><label>Longitude</label><input id="f-lon" type="number" step="0.0001" value="77.2090"></div>
+        <div class="field"><label>Timezone</label><input id="f-tz" value="Asia/Kolkata"></div>
+      </div>
+      <div class="row r2">
+        <div class="field"><label>Ayanamsa</label><select id="f-ayan">
+          <option>Lahiri</option><option>Raman</option><option>Krishnamurti</option>
+          <option>True Chitra</option><option>Yukteshwar</option></select></div>
+        <div class="field"><label>Read for date</label><input id="f-when" type="date">
+          <div class="hint">Dashas and transits are shown for this moment</div></div>
+      </div>
+      <div style="display:flex;gap:9px;margin-top:6px">
+        <button class="btn pri" id="btn-cast">Cast chart</button>
+        <button class="btn" id="btn-save">Save this chart</button>
+        <button class="btn" id="btn-sample">Load a sample</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const GC = n => `var(--g-${n})`;
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ORD = n => n + (["th","st","nd","rd"][(n%100-20)%10] || ["th","st","nd","rd"][n%100] || "th");
+
+let DATA = null, BIRTH = null, dashaPath = [], vargaMode = "north";
+
+/* ---------- api ----------
+   Paths are resolved against the directory this page is served from, so the
+   app works when it is hosted under a subpath and not only at the root.
+   Responses are checked for JSON before parsing, because a static host that
+   has no backend answers /api/* with an HTML 404, and "Unexpected token <"
+   is a useless thing to show a person.                                     */
+const BASE = location.pathname.replace(/[^/]*$/, "");
+const url = p => p.startsWith("http") ? p : BASE + p.replace(/^\//, "");
+
+async function readJSON(r){
+  const type = r.headers.get("content-type") || "";
+  if(!type.includes("json")){
+    throw new Error(r.status === 404
+      ? "the chart engine is not running at this address"
+      : "server returned " + (type.split(";")[0] || "an unknown format") +
+        " instead of JSON (HTTP " + r.status + ")");
+  }
+  const j = await r.json();
+  if(!r.ok) throw new Error(j.error || ("HTTP " + r.status));
+  return j;
+}
+async function post(path, body){
+  let r;
+  try{
+    r = await fetch(url(path), {method:"POST",
+      headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+  }catch(e){ throw new Error("cannot reach the chart engine (" + e.message + ")"); }
+  return readJSON(r);
+}
+async function get(path){
+  let r;
+  try{ r = await fetch(url(path)); }
+  catch(e){ throw new Error("cannot reach the chart engine (" + e.message + ")"); }
+  return readJSON(r);
+}
+
+/* ---------- backend health ----------
+   The engine is Python plus Swiss Ephemeris. If the page is served from a
+   static host there is no engine, and the honest thing is to say so up front
+   rather than let every button fail one at a time.                         */
+async function checkBackend(){
+  try{
+    const h = await get("/api/health");
+    if(!h.ok) throw new Error("unhealthy");
+    $("#offline").classList.add("hide");
+    return true;
+  }catch(e){
+    $("#offline").innerHTML =
+      `<b>The chart engine is not reachable.</b> ${esc(e.message)}. ` +
+      `Casting a chart needs the Python server running at this address, because the ` +
+      `astronomy comes from Swiss Ephemeris and cannot run in a browser. ` +
+      `Place lookup below still works offline.`;
+    $("#offline").classList.remove("hide");
+    return false;
+  }
+}
+
+/* ---------- shell ----------
+   One navigation model driving three surfaces: the desktop rail, the mobile
+   bottom tab bar, and the mobile section strip. Tabs group pages so a phone
+   never shows more than five bottom items.                                  */
+const TABS = [
+  {key:"overview", icon:"◈", label:"Chart",  pages:["overview","lords","grahas","vargas"]},
+  {key:"rightnow", icon:"◐", label:"Now",    pages:["rightnow","dasha","segments","transits"]},
+  {key:"character",icon:"☗", label:"You",    pages:["character","psyche"]},
+  {key:"nakshatras",icon:"✧",label:"Depth",  pages:["nakshatras","yogas","ashtakavarga"]},
+  {key:"reference",icon:"≡", label:"Ref",    pages:["reference"]},
+];
+const PAGE_TITLES = {overview:"Overview", lords:"Houses & lords", grahas:"Grahas",
+  vargas:"Divisional", rightnow:"Right now", dasha:"Dashas", segments:"Segments",
+  transits:"Transits", character:"Character", psyche:"Psyche", nakshatras:"Nakshatras",
+  yogas:"Yogas", ashtakavarga:"Ashtakavarga", reference:"Reference"};
+
+let currentPage = "overview";
+
+function tabFor(page){ return TABS.find(t=>t.pages.includes(page)) || TABS[0]; }
+
+function goto(page){
+  currentPage = page;
+  $$(".nav-item").forEach(n=>n.classList.toggle("on", n.dataset.page===page));
+  $$(".page").forEach(p=>p.classList.toggle("on", p.dataset.page===page));
+  const tab = tabFor(page);
+  $$("#tabbar button").forEach(b=>b.classList.toggle("on", b.dataset.tab===tab.key));
+  $("#sectionbar").innerHTML = tab.pages.map(p=>
+    `<button data-page="${p}" class="${p===page?"on":""}">${esc(PAGE_TITLES[p])}</button>`).join("");
+  $$("#sectionbar button").forEach(b=>b.onclick=()=>goto(b.dataset.page));
+  const active = $("#sectionbar button.on");
+  if(active) active.scrollIntoView({inline:"center", block:"nearest", behavior:"smooth"});
+  $("#content").scrollTop = 0;
+}
+
+$$(".nav-item").forEach(el=>el.onclick=()=>goto(el.dataset.page));
+
+$("#tabbar").innerHTML = TABS.map(t=>
+  `<button data-tab="${t.key}"><span class="ico">${t.icon}</span>${esc(t.label)}</button>`).join("");
+$$("#tabbar button").forEach(b=>b.onclick=()=>{
+  const tab = TABS.find(t=>t.key===b.dataset.tab);
+  goto(tab.pages.includes(currentPage) ? currentPage : tab.pages[0]);
+});
+$("#btn-open").onclick = ()=>$("#drawer").classList.add("on");
+$("#btn-close").onclick = ()=>$("#drawer").classList.remove("on");
+$("#drawer").onclick = e=>{ if(e.target.id==="drawer") $("#drawer").classList.remove("on"); };
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") $("#drawer").classList.remove("on"); });
+
+/* ---------- place autocomplete ----------
+   The city table is loaded once and searched in the browser. It used to call
+   the API on every keystroke, which meant the location field did nothing at
+   all whenever the Python backend was not reachable -- and because the error
+   was swallowed, it did nothing *silently*. Both of those are fixed here:
+   local search first, API only as a fallback, and every failure is shown.  */
+let CITIES = null, citiesState = "loading";
+
+function fold(s){
+  return (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+}
+
+async function loadCities(){
+  try{
+    const r = await fetch(url("cities.json"), {cache:"force-cache"});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const raw = await r.json();
+    CITIES = raw.map(c=>({
+      name:c.n, admin:c.a, country:c.c, latitude:c.la, longitude:c.lo, timezone:c.tz,
+      label:[c.n,c.a,c.c].filter(Boolean).join(", "),
+      fName:fold(c.n), fAdmin:fold(c.a), fCountry:fold(c.c)
+    }));
+    citiesState = "ready";
+  }catch(e){
+    citiesState = "failed";
+    CITIES = null;
+  }
+}
+
+/* Mirrors places.search(): exact, prefix, substring, then region. */
+function searchCities(query, limit=12){
+  if(!CITIES) return null;
+  const q = fold(query.trim());
+  if(!q) return [];
+  const parts = q.replace(/,/g," ").split(/\s+/).filter(Boolean);
+  const exact=[], prefix=[], contains=[], region=[];
+  for(const c of CITIES){
+    const hay = c.fName+" "+c.fAdmin+" "+c.fCountry;
+    if(c.fName === q) exact.push(c);
+    else if(c.fName.startsWith(q)) prefix.push(c);
+    else if(c.fName.includes(q)) contains.push(c);
+    else if(c.fAdmin.startsWith(q) || c.fCountry.startsWith(q)) region.push(c);
+    else if(parts.length>1 && parts.every(p=>hay.includes(p))) contains.push(c);
+    else if(c.fAdmin.includes(q) || c.fCountry.includes(q)) region.push(c);
+  }
+  const seen = new Set(), out = [];
+  for(const c of [...exact,...prefix,...contains,...region]){
+    if(seen.has(c.name)) continue;
+    seen.add(c.name); out.push(c);
+    if(out.length>=limit) break;
+  }
+  return out;
+}
+
+function showPlaces(results){
+  if(!results.length){
+    $("#ac").innerHTML = `<div class="ac-msg">No match. Type the coordinates below instead.</div>`;
+    $("#ac").classList.add("on"); return;
+  }
+  $("#ac").innerHTML = results.map(r=>
+    `<div data-lat="${r.latitude}" data-lon="${r.longitude}" data-tz="${esc(r.timezone)}" data-l="${esc(r.label)}">
+      ${esc(r.name)}<small>${esc(r.label)} · ${r.latitude.toFixed(3)}, ${r.longitude.toFixed(3)} · ${esc(r.timezone)}</small></div>`).join("");
+  $("#ac").classList.add("on");
+  $$("#ac div[data-lat]").forEach(d=>{
+    const pick = ()=>{
+      $("#f-place").value = d.dataset.l;
+      $("#f-lat").value = d.dataset.lat;
+      $("#f-lon").value = d.dataset.lon;
+      $("#f-tz").value = d.dataset.tz;
+      $("#ac").classList.remove("on");
+      placeNote("");
+    };
+    d.onclick = pick;
+    d.addEventListener("touchend", e=>{ e.preventDefault(); pick(); }, {passive:false});
+  });
+}
+
+function placeNote(msg, kind){
+  const el = $("#place-note");
+  el.textContent = msg || "Resolves to coordinates and an IANA zone. Override below if you need to.";
+  el.style.color = msg ? (kind==="bad" ? "var(--rose)" : "var(--amber)") : "";
+}
+
+let acTimer;
+$("#f-place").oninput = e=>{
+  clearTimeout(acTimer);
+  const q = e.target.value.trim();
+  if(q.length<2){ $("#ac").classList.remove("on"); return; }
+  acTimer = setTimeout(async ()=>{
+    if(citiesState === "loading") await loadCities();
+
+    const local = searchCities(q);
+    if(local !== null){ showPlaces(local); return; }
+
+    // Local table unavailable: try the API, and say so if that fails too.
+    try{
+      const {results} = await get("/api/places?q="+encodeURIComponent(q));
+      showPlaces(results);
+      placeNote("City list unavailable, using the server. Slower but working.", "warn");
+    }catch(err){
+      $("#ac").classList.remove("on");
+      placeNote("Place lookup is unavailable: " + err.message +
+                ". Type latitude, longitude and timezone by hand below.", "bad");
+    }
+  }, 120);
+};
+document.addEventListener("click", e=>{ if(!e.target.closest(".field")) $("#ac").classList.remove("on"); });
+
+/* ---------- cast ---------- */
+$("#btn-sample").onclick = ()=>{
+  $("#f-name").value = "Sample";
+  $("#f-date").value = "1988-06-14";
+  $("#f-time").value = "07:45";
+  $("#f-place").value = "Panaji, Goa, India";
+  $("#f-lat").value = 15.4909; $("#f-lon").value = 73.8278; $("#f-tz").value = "Asia/Kolkata";
+};
+$("#btn-cast").onclick = cast;
+
+async function cast(){
+  const d = $("#f-date").value, t = $("#f-time").value || "12:00";
+  if(!d){ formErr("A date of birth is required."); return; }
+  const [Y,M,D] = d.split("-").map(Number);
+  const [h,m] = t.split(":").map(Number);
+  BIRTH = {
+    name: $("#f-name").value || "Unnamed",
+    year:Y, month:M, day:D, hour:h, minute:m,
+    latitude: parseFloat($("#f-lat").value),
+    longitude: parseFloat($("#f-lon").value),
+    tz_name: $("#f-tz").value.trim(),
+    place: $("#f-place").value.trim(),
+    ayanamsa: $("#f-ayan").value
+  };
+  const when = $("#f-when").value || null;
+  const btn = $("#btn-cast"); btn.innerHTML = '<span class="spin"></span> Computing';
+  try{
+    DATA = await post("/api/chart", {birth:BIRTH, when: when ? when+"T12:00" : null});
+    formErr("");
+    $("#drawer").classList.remove("on");
+    dashaPath = [];
+    renderAll();
+  }catch(e){ formErr(e.message); }
+  finally{ btn.textContent = "Cast chart"; }
+}
+function formErr(m){ $("#form-err").innerHTML = m ? `<div class="err">${esc(m)}</div>` : ""; }
+
+/* ---------- renderers ---------- */
+function renderAll(){
+  const d = DATA;
+  $("#who-name").textContent = d.birth.name;
+  $("#who-meta").textContent = `${d.birth.date_label} · ${d.birth.time} · ${d.birth.place || d.birth.latitude.toFixed(2)+", "+d.birth.longitude.toFixed(2)}`;
+  $("#ayan-foot").textContent = `${d.birth.ayanamsa} ${d.birth.ayanamsa_label}`;
+  $("#n-yoga").textContent = d.yogas.total;
+
+  const ch = d.dasha.chain;
+  if(ch.length>=2){
+    $("#chip-dasha").innerHTML = `<b>${ch[0].lord}</b> / ${ch[1].lord}${ch[2]?" / "+ch[2].lord:""}`;
+    $("#chip-dasha").classList.remove("hide");
+  }
+  const ss = d.transits.sade_sati;
+  $("#chip-ss").classList.toggle("hide", !ss.active);
+  if(ss.active) $("#chip-ss").textContent = `Sade Sati · ${ss.phase}`;
+
+  renderRightNow(); renderCharacter(); renderPsyche(); renderNakshatras();
+  renderAshtakavarga();
+  renderOverview(); renderLords(); renderGrahas(); renderYogas();
+  renderDasha(); renderSegmentsPage(); renderTransits(); renderVargas(); renderReference();
+}
+
+/* ===== right now ===== */
+const ST = {"Going well":["st-good","s-hi",92],"Steady":["st-ok","s-hi",68],
+            "Mixed":["st-mix","s-md",50],"Under strain":["st-bad","s-lo",30],"Difficult":["st-bad","s-lo",14]};
+function renderRightNow(){
+  const b = DATA.brief, ss = b.sade_sati;
+  const worst = b.areas.filter(a=>["Under strain","Difficult"].includes(a.status));
+
+  $("#rightnow").innerHTML = `
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h"><h4>What is running</h4><div class="spacer"></div><span class="sub">${esc(b.moment_label)}</span></div>
+    <div class="card-b">
+      ${b.now.levels.map(l=>`
+        <div class="block">
+          <h6>${l.level_name} · ${l.lord} · ${l.percent}% done, ends ${l.end}</h6>
+          <p class="lead">${esc(l.text)}</p>
+          <p style="margin-top:6px">${esc(l.tone)} ${l.lord} is at ${Math.round(l.strength)} out of 100 here, which is ${esc(l.band.toLowerCase())}.</p>
+          <div class="bar" style="margin-top:8px"><i class="s-hi" style="width:${l.percent}%"></i></div>
+          <div class="tags">
+            <span class="chip">${esc(l.functional)}</span>
+            <span class="chip">sits in the ${ORD(l.sits_in)} · ${esc(l.sign)}</span>
+            ${l.rules.length?`<span class="chip mint">rules the ${l.rules.map(ORD).join(", ")}</span>`:`<span class="chip iris">rules nothing</span>`}
+            <span class="chip">${esc(l.remaining)} left</span>
+          </div>
+        </div>`).join("")}
+      ${b.now.interaction.length?`<div class="block"><h6>How the levels interact</h6>
+        ${b.now.interaction.map(i=>`<div class="note ${i.tone==="difficult"?"rose":i.tone==="supportive"?"mint":i.tone==="active"?"amber":""}">
+          <b>${i.pair[0]} → ${i.pair[1]} · ${i.tone}.</b> ${esc(i.text)}</div>`).join("")}</div>`:""}
+    </div>
+  </div>
+
+  ${worst.length?`<div class="card" style="margin-bottom:14px">
+    <div class="card-h"><h4>Where the pressure is</h4><div class="spacer"></div>
+      <span class="chip rose">${worst.length} area${worst.length>1?"s":""}</span></div>
+    <div class="card-b">${worst.map(a=>`<div class="note rose"><b>${esc(a.name)}.</b> ${esc(a.headline)}</div>`).join("")}</div>
+  </div>`:`<div class="card" style="margin-bottom:14px"><div class="card-b">
+    <div class="note mint">No area of life is under real strain at this date. The chart is in a steady stretch.</div></div></div>`}
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h"><h4>Every part of life</h4><div class="spacer"></div>
+      <span class="sub">natal + dasha + transit, worst first</span></div>
+    <div>${b.areas.map(areaRow).join("")}</div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card"><div class="card-h"><h4>What changes next</h4><div class="spacer"></div>
+      <span class="sub">antardasha changes</span></div>
+      <div class="card-b">${b.next.length?b.next.map(e=>`
+        <div class="wnext">
+          <div class="wd">${e.start}<br><span style="opacity:.55">to ${e.end}</span><br><span style="opacity:.55">${e.duration}</span></div>
+          <div>
+            <div class="wl"><span class="gname" style="color:${GC(e.lord)}"><i style="background:${GC(e.lord)}"></i>${e.label}</span>
+              <span class="chip ${e.tone==="difficult"?"rose":e.tone==="supportive"?"mint":e.tone==="active"?"amber":""} mini">${e.tone}</span></div>
+            <div class="wt">${esc(e.shifts)}</div>
+            <div class="wt" style="color:var(--tx-3)">${esc(e.tone_text)}</div>
+          </div>
+        </div>`).join(""):`<div class="empty">No further period changes computed.</div>`}
+      </div></div>
+
+    <div class="card"><div class="card-h"><h4>Sade Sati</h4><div class="spacer"></div>
+      <span class="chip ${ss.active?"amber":"mint"}">${ss.active?esc(ss.phase):"Not active"}</span></div>
+      <div class="card-b">
+        <p style="font-size:12.5px;color:var(--tx-2);line-height:1.65;margin-bottom:12px">${esc(ss.plain)}</p>
+        ${ss.extra?`<div class="note rose">${esc(ss.extra)}</div>`:""}
+        ${ss.phases.map(p=>`
+          <div class="phase ${p.active?"on":""}">
+            <h6>${esc(p.name)}${p.active?' &middot; <span style="color:var(--amber)">you are here</span>':""}</h6>
+            <div class="pm">${esc(p.sign)} · from ${esc(p.start||"—")} · ${esc(p.plain)}</div>
+            <p>${esc(p.what)}</p>
+            <p><b>Watch for:</b> ${esc(p.watch)}</p>
+            <p><b>What helps:</b> ${esc(p.helps)}</p>
+          </div>`).join("")}
+        <div class="grid g2" style="gap:10px;margin-top:10px">
+          ${kv("Natal Moon", `${ss.moon_sign} · ${ss.moon_nakshatra}`)}${kv("Saturn now", ss.saturn_sign)}
+          ${ss.window_start?kv(ss.active?"Cycle opened":"Next cycle opens", ss.window_start):""}
+          ${ss.window_end?kv(ss.active?"Cycle closes":"Next cycle closes", ss.window_end):""}
+        </div>
+      </div></div>
+  </div>`;
+
+  $$("#rightnow .area").forEach(c=>c.querySelector(".ah").onclick=()=>c.classList.toggle("open"));
+}
+
+function areaRow(a){
+  const [cls, bar, pct] = ST[a.status] || ST["Mixed"];
+  return `<div class="card area" style="border:0;border-radius:0;border-bottom:1px solid var(--line);background:transparent;box-shadow:none">
+    <div class="ah">
+      <span class="caret">▸</span>
+      <div><h5>${esc(a.name)}</h5><div class="pl">${esc(a.plain)}</div></div>
+      <div class="spacer"></div>
+      <span class="mono ${cls}" style="font-size:11px">${a.status}</span>
+      <div class="meter"><i class="${bar}" style="width:${pct}%"></i></div>
+    </div>
+    <div class="abody">
+      <p style="font-size:12.5px;color:var(--tx);line-height:1.65;margin-bottom:11px">${esc(a.headline)}</p>
+      ${a.transits.length?`<div class="block"><h6>What is crossing it now</h6>
+        ${a.transits.map(t=>`<div class="note" style="border-left-color:${GC(t.graha)}">
+          <b style="color:${GC(t.graha)}">${t.graha} in your ${ORD(t.house)} house</b> · ${esc(t.sign)} · stays ${esc(t.duration)}<br>
+          <b>Touches:</b> ${esc(t.area)}<br>
+          ${esc(t.what)}<br>
+          <b>Watch for:</b> ${esc(t.watch)}<br>
+          <b>What helps:</b> ${esc(t.helps)}</div>`).join("")}</div>`:""}
+      ${a.dasha.length?`<div class="block"><h6>Why it is active</h6>
+        ${a.dasha.map(d=>`<div class="note mint">${esc(d.text)}</div>`).join("")}</div>`:
+        `<div class="block"><h6>Why it is quiet</h6><p style="color:var(--tx-3)">No period lord currently running is connected to these houses, so expect little movement either way.</p></div>`}
+      <div class="block"><h6>The chart underneath</h6>
+        <ul class="reasons">${a.reasons.map(r=>`<li>${esc(r)}</li>`).join("")}</ul>
+        <div class="tags"><span class="chip">natal ${a.natal_score>=0?"+":""}${a.natal_score}</span>
+          <span class="chip">dasha ${a.dasha_score>=0?"+":""}${a.dasha_score}</span>
+          <span class="chip">transit ${a.transit_score>=0?"+":""}${a.transit_score}</span>
+          <span class="chip ${cls==="st-bad"?"rose":cls==="st-mix"?"amber":"mint"}">total ${a.score>=0?"+":""}${a.score}</span></div>
+      </div>
+    </div></div>`;
+}
+
+/* ===== ashtakavarga ===== */
+function renderAshtakavarga(){
+  const a = DATA.ashtakavarga, s = a.sarva;
+  const GO = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"];
+  const max = Math.max(...s.houses.map(h=>h.bindus));
+
+  $("#ashtakavarga").innerHTML = `
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h"><h4>Sarvashtakavarga</h4><div class="spacer"></div>
+      <span class="chip ${s.valid?"mint":"rose"}">${s.total} / ${s.expected_total}</span></div>
+    <div class="card-b">
+      <p class="t-read" style="margin-bottom:14px">${esc(a.explainer)}</p>
+      ${s.houses.map(h=>`
+        <div style="display:flex;align-items:center;gap:11px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.035)">
+          <div class="hnum" style="width:28px;height:28px;border-radius:8px;font-size:11.5px">${h.house}</div>
+          <div style="min-width:82px"><b style="font-size:12.5px">${esc(h.sign)}</b>
+            <div class="mono" style="font-size:9.5px;color:var(--tx-3)">${esc(h.lord)}</div></div>
+          <div class="bar" style="flex:1;height:7px"><i class="${h.bindus>=28?"s-hi":h.bindus>=25?"s-md":"s-lo"}" style="width:${(h.bindus/max)*100}%"></i></div>
+          <span class="mono" style="width:26px;text-align:right;color:var(--tx)">${h.bindus}</span>
+          <span class="chip ${h.colour}" style="min-width:82px;justify-content:center">${esc(h.band)}</span>
+        </div>`).join("")}
+      <div class="note mint" style="margin-top:13px">${esc(s.note)}</div>
+      <div class="tags" style="margin-top:10px">
+        <span class="chip">average ${s.average}</span>
+        <span class="chip">kendras ${s.kendra_total}</span>
+        <span class="chip">trikonas ${s.trikona_total}</span>
+        <span class="chip">dusthanas ${s.dusthana_total}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h"><h4>Bhinnashtakavarga</h4><div class="spacer"></div>
+      <span class="sub">bindus per graha per house</span></div>
+    <div style="overflow-x:auto"><table><thead><tr>
+      <th>House</th><th>Sign</th>${GO.map(g=>`<th style="text-align:center;color:${GC(g)}">${g.slice(0,2)}</th>`).join("")}<th style="text-align:center">SAV</th>
+    </tr></thead><tbody>
+    ${s.houses.map(h=>`<tr>
+      <td class="num">${h.house}</td><td>${esc(h.sign)}</td>
+      ${GO.map(g=>{const v=h.per_graha[g];
+        return `<td class="num" style="text-align:center;color:${v>=5?"var(--mint)":v<=1?"var(--rose)":"var(--tx-2)"}">${v}</td>`;}).join("")}
+      <td class="num" style="text-align:center;font-weight:700;color:${h.bindus>=28?"var(--mint)":h.bindus<25?"var(--rose)":"var(--tx)"}">${h.bindus}</td>
+    </tr>`).join("")}
+    <tr style="border-top:1px solid var(--line-2)"><td colspan="2" class="num" style="color:var(--tx-3)">totals</td>
+      ${GO.map(g=>`<td class="num" style="text-align:center;color:var(--tx-3)">${a.bhinna[g].total}</td>`).join("")}
+      <td class="num" style="text-align:center;color:var(--tx-3)">${s.total}</td></tr>
+    </tbody></table></div>
+    <div class="card-b" style="border-top:1px solid var(--line)">
+      ${GO.map(g=>`<div class="note" style="border-left-color:${GC(g)}">
+        <b style="color:${GC(g)}">${g}</b> · ${a.bhinna[g].total} bindus<br>${esc(a.bhinna[g].note)}</div>`).join("")}
+    </div>
+  </div>
+
+  ${a.kakshas.length?`<div class="card" style="margin-bottom:14px">
+    <div class="card-h"><h4>Kaksha transits</h4><div class="spacer"></div>
+      <span class="sub">3°45 resolution timing</span></div>
+    <div class="card-b">
+      <p class="t-read" style="margin-bottom:13px">Each sign divides into eight kakshas of 3 degrees 45, one per reference point. A graha crossing a kaksha whose owner gave it a bindu produces results. Crossing an empty one it produces very little, however dramatic the transit looks.</p>
+      ${a.kakshas.map(k=>`<div class="note ${k.has_bindu?"mint":"rose"}" style="border-left-color:${GC(k.graha)}">
+        <b style="color:${GC(k.graha)}">${k.graha}</b> in ${esc(k.sign)}, your ${ORD(k.house)} · kaksha ${k.kaksha} of ${esc(k.kaksha_owner)}
+        <span class="chip ${k.has_bindu?"mint":"rose"} mini" style="margin-left:6px">${k.has_bindu?"bindu":"empty"}</span><br>
+        ${esc(k.note)}</div>`).join("")}
+    </div>
+  </div>`:""}
+
+  <div class="card"><div class="card-b">
+    <div class="note amber"><b>Reductions not applied.</b> Trikona and ekadhipatya sodhana are disputed between schools and applying the wrong one produces confident nonsense. Raw bindus are shown. Table integrity self-checks on every chart: ${s.valid?"passing":"FAILING"} at ${s.total} of ${s.expected_total}.</div>
+  </div></div>`;
+}
+
+/* ===== nakshatras ===== */
+function renderNakshatras(){
+  const N = DATA.nakshatras, janma = N.janma;
+  const rows = DATA.grahas.map(g=>({g, n:g.nakshatra_detail, chain:g.nakshatra_chain}));
+
+  $("#nakshatras").innerHTML = `
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h"><h4>Janma nakshatra · ${esc(janma.name)}</h4><div class="spacer"></div>
+      <span class="sub">pada ${janma.pada} · ${esc(janma.pada_navamsa)} navamsa · lord ${esc(janma.lord)}</span></div>
+    <div class="card-b">
+      <div class="hl-title" style="margin-bottom:9px">${esc(janma.shakti)}</div>
+      <div class="t-read" style="margin-bottom:12px">${esc(janma.drive)}</div>
+      <div class="grid g2" style="gap:14px">
+        <div class="block"><h6>Gift</h6><p>${esc(janma.gift)}</p></div>
+        <div class="block"><h6>Shadow</h6><p>${esc(janma.shadow)}</p></div>
+        <div class="block"><h6>Wound</h6><p>${esc(janma.wound)}</p></div>
+        <div class="block"><h6>The work</h6><div class="note mint">${esc(janma.work)}</div></div>
+      </div>
+      <div class="block"><h6>Pada</h6><p>${esc(janma.pada_note)}</p></div>
+      ${janma.gandanta?`<div class="note rose"><b>Gandanta.</b> ${esc(janma.gandanta.note)}</div>`:""}
+      <dl class="keyline" style="margin-top:12px">
+        <dt>Deity</dt><dd>${esc(janma.deity)}</dd>
+        <dt>Symbol</dt><dd>${esc(janma.symbol)}</dd>
+        <dt>Gana</dt><dd>${esc(janma.gana)}</dd>
+        <dt>Yoni</dt><dd>${esc(janma.yoni)} (${esc(janma.yoni_gender)})</dd>
+        <dt>Guna</dt><dd>${esc(janma.guna)}</dd>
+        <dt>Tattva</dt><dd>${esc(janma.tattva)}</dd>
+        <dt>Nadi</dt><dd>${esc(janma.nadi)}</dd>
+        <dt>Varna</dt><dd>${esc(janma.varna)}</dd>
+        <dt>Body</dt><dd>${esc(janma.body)}</dd>
+        <dt>Range</dt><dd class="mono">${esc(janma.range)}</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h"><h4>Every graha by nakshatra</h4><div class="spacer"></div>
+      <span class="sub">pada, pada lord and tara from your birth star</span></div>
+    <div style="overflow-x:auto"><table><thead><tr>
+      <th>Graha</th><th>Nakshatra</th><th>Pada</th><th>Navamsa</th><th>Pada lord</th>
+      <th>Nakshatra lord</th><th>Tara</th><th>Delivers through</th></tr></thead>
+    <tbody>${rows.map(({g,n,chain})=>`<tr>
+      <td><span class="gname" style="color:${GC(g.name)}"><i style="background:${GC(g.name)}"></i>${g.name}</span></td>
+      <td>${esc(n.name)} <span class="mono" style="color:var(--tx-3)">${n.percent}%</span></td>
+      <td class="num">${n.pada}</td>
+      <td>${esc(n.pada_navamsa)}</td>
+      <td>${esc(n.pada_lord)}</td>
+      <td>${esc(n.lord)}</td>
+      <td class="${n.tara.quality==="good"?"tara-good":"tara-bad"}">${n.tara.n} ${esc(n.tara.name)}</td>
+      <td><span class="gname" style="color:${GC(chain.terminates_in)}"><i style="background:${GC(chain.terminates_in)}"></i>${chain.terminates_in}</span></td>
+    </tr>`).join("")}</tbody></table></div>
+    <div class="card-b" style="border-top:1px solid var(--line)">
+      <div class="note iris"><b>Nakshatra dispositor.</b> A graha delivers through the lord of the nakshatra it occupies, not only through the lord of its sign. Chain that far enough and it closes on itself. The graha in the last column is where each one's results actually land, which is where to look when a graha's outcome does not match its own dignity.</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h"><h4>Dispositor chains</h4></div>
+    <div class="card-b">${rows.map(({g,chain})=>`
+      <div class="note" style="border-left-color:${GC(g.name)}">
+        <b style="color:${GC(g.name)}">${g.name}</b>
+        <span class="mono" style="color:var(--tx-3)"> ${chain.chain.map(c=>c.graha).join(" → ")} → ${chain.terminates_in}</span><br>
+        ${esc(chain.note)}</div>`).join("")}</div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h"><h4>Tara bala</h4><div class="spacer"></div>
+      <span class="sub">the nine-fold cycle counted from ${esc(janma.name)}</span></div>
+    <div class="card-b">
+      <p class="t-read" style="margin-bottom:12px">Count from your birth star to any nakshatra and the position in this nine-fold cycle tells you how a transit through it will behave. Reused for every graha, and for picking dates.</p>
+      <div class="grid g3" style="gap:9px">${N.taras.map(t=>`
+        <div class="note ${t.quality==="good"?"mint":"rose"}"><b>${t.n}. ${esc(t.name)}</b><br>${esc(t.meaning)}</div>`).join("")}</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h4>All twenty-seven</h4><div class="spacer"></div>
+      <span class="sub">coloured by tara from your birth star</span></div>
+    <div class="card-b"><div class="nkgrid">${N.all.map(n=>`
+      <div class="nkcell ${n.index===janma.index?"janma":(n.tara.quality==="good"?"good":"bad")}"
+           title="${esc(n.name)} · ${esc(n.deity)} · tara ${n.tara.n} ${esc(n.tara.name)} · ${esc(n.shakti)}">
+        <b>${esc(n.name)}</b><span>${n.tara.n} ${esc(n.tara.name)}</span></div>`).join("")}</div>
+      <div class="legend-key" style="padding-left:0"><span><i style="background:var(--amber)"></i>your birth star</span>
+        <span><i style="background:var(--mint)"></i>supportive tara</span>
+        <span><i style="background:var(--rose)"></i>difficult tara</span></div>
+    </div>
+  </div>`;
+}
+
+/* ===== psyche ===== */
+function renderPsyche(){
+  const p = DATA.psyche, b = p.balances;
+  $("#psyche").innerHTML = `
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h"><h4>The three layers</h4><div class="spacer"></div>
+      <span class="sub">presentation, private self, purpose</span></div>
+    <div class="card-b">
+      ${p.layers.map(l=>`
+        <div class="block">
+          <h6>${esc(l.layer)} · ${esc(l.nakshatra)} pada ${l.pada}</h6>
+          <p style="color:var(--tx-3);font-size:11.5px;margin-bottom:7px">${esc(l.role)}</p>
+          <p class="t-read">${esc(l.drive)}</p>
+          <div class="tags">
+            <span class="chip">lord ${esc(l.lord)}</span><span class="chip">${esc(l.gana)} gana</span>
+            <span class="chip">${esc(l.guna)}</span><span class="chip">${esc(l.tattva)}</span>
+            <span class="chip">${esc(l.nadi)}</span><span class="chip iris">${esc(l.pada_navamsa)} navamsa</span>
+          </div>
+          ${l.gandanta?`<div class="note rose" style="margin-top:8px"><b>Gandanta.</b> ${esc(l.gandanta.note)}</div>`:""}
+        </div>`).join("")}
+      <div class="note iris"><b>Where the layers disagree.</b> ${esc(p.division)}</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h"><h4>The core</h4><div class="spacer"></div>
+      <span class="sub">Moon in ${esc(p.janma_nakshatra)}</span></div>
+    <div class="card-b">
+      <p class="t-read">${esc(p.core)}</p>
+      <div class="note" style="margin-top:11px">${esc(p.gana_note)}</div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-bottom:14px">
+    <div class="card"><div class="card-h"><h4>What the life is weighted toward</h4></div>
+      <div class="card-b">
+        <p class="t-read" style="margin-bottom:12px">${esc(b.aim_note)}</p>
+        ${Object.entries(b.purushartha).map(([k,v])=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.035)">
+            <div style="min-width:132px"><b style="font-size:12.5px">${esc(v.name)}</b>
+              <div class="mono" style="font-size:10px;color:var(--tx-3)">houses ${v.houses.join(", ")}</div></div>
+            <div class="bar" style="flex:1"><i class="${k===b.dominant_aim?"s-hi":"s-md"}" style="width:${(v.count/9)*100}%"></i></div>
+            <span class="mono" style="color:var(--tx-3);font-size:11px">${v.count}/9</span>
+          </div>`).join("")}
+      </div></div>
+    <div class="card"><div class="card-h"><h4>Constitution of the chart</h4></div>
+      <div class="card-b">
+        <div class="block"><h6>Guna</h6>
+          ${Object.entries(b.guna).map(([k,v])=>`<div class="note"><b>${esc(k)} · ${v} of 9.</b> ${esc(b.guna_notes[k])}</div>`).join("")}</div>
+        <div class="block"><h6>Tattva</h6>
+          ${Object.entries(b.tattva).map(([k,v])=>`<div class="note"><b>${esc(k)} · ${v}.</b> ${esc(b.tattva_notes[k])}</div>`).join("")}</div>
+        <div class="block"><h6>Gana</h6>
+          <div class="tags">${Object.entries(b.gana).map(([k,v])=>`<span class="chip">${esc(k)} ${v}</span>`).join("")}</div></div>
+      </div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h"><h4>The grahas as functions of a person</h4><div class="spacer"></div>
+      <span class="sub">weakest first</span></div>
+    <div class="card-b"><div class="grid gauto">${p.grahas.map(g=>`
+      <div class="card" style="padding:14px 16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span class="gname" style="font-size:13.5px;color:${GC(g.graha)}"><i style="background:${GC(g.graha)}"></i>${g.graha}</span>
+          <div style="flex:1"></div>
+          <span class="chip ${g.state==="integrated"?"mint":g.state==="workable"?"amber":"rose"}">${esc(g.state)}</span>
+        </div>
+        <p class="t-read" style="font-size:12.5px">${esc(g.function)}</p>
+        <div class="note" style="margin-top:9px">${esc(g.state_note)}</div>
+        <div class="note iris">${esc(g.colouring)}</div>
+        <div class="note mint"><b>Integration.</b> ${esc(g.integration)}</div>
+        ${g.extra?`<div class="note">${esc(g.extra)}</div>`:""}
+        <div class="t-fact">${g.graha} in the ${ORD(g.house)}, ${esc(g.sign)}, ${esc(g.dignity)}, ${esc(g.nakshatra)}, strength ${Math.round(g.strength)}/100.</div>
+      </div>`).join("")}</div></div>
+  </div>
+
+  ${p.interior.length?`<div class="card" style="margin-bottom:14px">
+    <div class="card-h"><h4>What the slow transits are doing on the inside</h4></div>
+    <div class="card-b">${p.interior.map(t=>`
+      <div class="block">
+        <h6>${esc(t.graha)} in your ${ORD(t.house)} · ${esc(t.process)}</h6>
+        <p class="t-read" style="color:var(--tx)">${esc(t.interior)}</p>
+        <div class="note" style="margin-top:8px;border-left-color:${GC(t.graha)}">${esc(t.philosophy)}</div>
+      </div>`).join("")}</div></div>`:""}
+
+  <div class="card"><div class="card-b">
+    <div class="note amber">${esc(p.caution)}</div></div></div>`;
+}
+
+/* ===== character ===== */
+function renderCharacter(){
+  const c = DATA.character;
+  $("#character").innerHTML = `
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h"><h4>${esc(c.sign)} lagna</h4><span class="sub">${esc(c.sign_sanskrit)} · ${esc(c.element)} ${esc(c.mode.toLowerCase())} · lord ${esc(c.lord)}</span></div>
+    <div class="card-b">
+      <p style="font-size:13px;color:var(--tx);line-height:1.7;margin-bottom:14px">${esc(c.summary)}</p>
+      <div class="grid g2" style="gap:14px">
+        <div class="block"><h6>Temperament</h6><p>${esc(c.temperament)}</p>
+          <div class="tags">${c.strengths.map(s=>`<span class="chip mint">${esc(s)}</span>`).join("")}</div></div>
+        <div class="block"><h6>The shadow it casts</h6>
+          <p style="color:var(--tx-3)">These are the failure modes of the same traits, not separate faults.</p>
+          <div class="tags">${c.shadow.map(s=>`<span class="chip rose">${esc(s)}</span>`).join("")}</div></div>
+      </div>
+      <div class="block"><h6>Constitution</h6><p>${esc(c.constitution)}</p></div>
+      <div class="note mint" style="margin-top:6px"><b>The core work for this lagna.</b> ${esc(c.core_work)}</div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-bottom:14px">
+    <div class="card"><div class="card-h"><h4>Where you put yourself</h4><div class="spacer"></div>
+      <span class="sub">lagna lord ${esc(c.lord_effect.lord)} in the ${ORD(c.lord_effect.house)}</span></div>
+      <div class="card-b">
+        <p class="lead" style="font-size:13px;line-height:1.65">${esc(c.lord_effect.stance)}</p>
+        <div class="note" style="margin-top:11px"><b>${esc(c.lord_effect.lord)} in the ${ORD(c.lord_effect.house)} house.</b> ${esc(c.lord_effect.in_house)}</div>
+        <div class="note"><b>${esc(c.lord_effect.lord)} in ${esc(c.lord_effect.sign)}.</b> ${esc(c.lord_effect.in_sign)}</div>
+        <div class="note ${c.lord_effect.strength>=60?"mint":c.lord_effect.strength>=40?"amber":"rose"}">
+          <b>Condition.</b> ${esc(c.lord_effect.condition_note)}</div>
+        <div class="tags"><span class="chip">${esc(c.lord_effect.dignity)}</span>
+          <span class="chip">${esc(c.lord_effect.band)} ${Math.round(c.lord_effect.strength)}/100</span>
+          <span class="chip iris">the lever: ${esc(c.lord_effect.trait)}</span></div>
+      </div></div>
+
+    <div class="card"><div class="card-h"><h4>What sits on and reaches your lagna</h4></div>
+      <div class="card-b">
+        ${c.occupants.length?c.occupants.map(o=>`
+          <div class="note" style="border-left-color:${GC(o.graha)}">
+            <b style="color:${GC(o.graha)}">${o.graha} in your 1st house</b> · ${esc(o.sign)}<br>
+            ${esc(o.trait)}<br><span style="color:var(--tx-3)">${esc(o.in_sign)}</span>
+            ${o.carried?`<br><b>${esc(o.carried)}</b>`:""}</div>`).join(""):
+          `<p style="color:var(--tx-3);font-size:12.5px">No graha occupies your 1st house, so the personality is read from the lagna sign and its lord alone. That usually reads as a cleaner, less complicated temperament.</p>`}
+        ${c.aspects.length?`<div class="block" style="margin-top:12px"><h6>Aspects onto the lagna</h6>
+          ${c.aspects.map(a=>`<div class="note" style="border-left-color:${GC(a.graha)}">${esc(a.effect)}</div>`).join("")}</div>`:""}
+      </div></div>
+  </div>
+
+  <div class="card-h" style="border:0;padding:0 0 11px"><h4>What to work on</h4><div class="spacer"></div>
+    <span class="sub">${c.growth_edges.length} area${c.growth_edges.length===1?"":"s"} wired back to temperament</span></div>
+  ${c.growth_edges.length?`<div class="grid gauto">${c.growth_edges.map(edgeCard).join("")}</div>`:
+    `<div class="card"><div class="card-b"><div class="note mint">No pressured house in this chart is structurally connected to your lagna. Where difficulty shows up it is circumstance rather than character. The work here is timing and endurance, not self-correction, and anyone telling you otherwise is guessing.</div></div></div>`}`;
+}
+
+function edgeCard(e){
+  return `<div class="card edge">
+    <div class="eh"><div class="hnum">${e.house}</div>
+      <div><h5>${esc(e.area)}</h5>
+        <div style="font-size:11px;color:var(--tx-3)">lord ${esc(e.lord)} in the ${ORD(e.lord_house)} · ${Math.round(e.lord_strength)}/100</div></div>
+      <div class="spacer"></div>
+      <span class="chip ${e.verdict==="Weak"?"rose":e.verdict==="Under pressure"?"rose":"amber"}">${e.verdict}</span></div>
+
+    <div class="block"><h6>How it is wired to you</h6>
+      ${e.links.map(l=>`<div class="note iris">${esc(l.text)}</div>`).join("")}</div>
+
+    <div class="block"><h6>The trait in play</h6>
+      <p class="lead">${esc(e.trait[0].toUpperCase()+e.trait.slice(1))}.</p>
+      <p style="margin-top:5px">${esc(e.why_outer)}</p></div>
+
+    <div class="block"><h6>What to actually do</h6>
+      <div class="note mint">${esc(e.work)}</div></div>
+
+    ${e.upaya && e.upaya.day?`<div class="block"><h6>Traditional upaya for ${esc(e.lord)}</h6>
+      <p style="color:var(--tx-3);font-size:11.5px">Recorded because it is part of the tradition. The behavioural work above is what the classical texts mean by upaya first.</p>
+      <div class="tags"><span class="chip">${esc(e.upaya.day)}</span>
+        <span class="chip mono">${esc(e.upaya.mantra)}</span>
+        <span class="chip">give: ${esc(e.upaya.charity)}</span>
+        <span class="chip">${esc(e.upaya.conduct)}</span></div></div>`:""}
+  </div>`;
+}
+
+/* ===== chart drawing ===== */
+const NORTH = [
+  {p:"200,0 300,100 200,200 100,100", c:[200,88]},
+  {p:"0,0 200,0 100,100",             c:[100,38]},
+  {p:"0,0 100,100 0,200",             c:[38,100]},
+  {p:"0,200 100,100 200,200 100,300", c:[100,200]},
+  {p:"0,200 100,300 0,400",           c:[38,300]},
+  {p:"0,400 100,300 200,400",         c:[100,362]},
+  {p:"200,400 100,300 200,200 300,300",c:[200,312]},
+  {p:"200,400 300,300 400,400",       c:[300,362]},
+  {p:"400,400 300,300 400,200",       c:[362,300]},
+  {p:"400,200 300,300 200,200 300,100",c:[300,200]},
+  {p:"400,200 300,100 400,0",         c:[362,100]},
+  {p:"400,0 300,100 200,0",           c:[300,38]}
+];
+const SOUTH_POS = {11:[0,0],0:[1,0],1:[2,0],2:[3,0],10:[0,1],3:[3,1],9:[0,2],4:[3,2],8:[0,3],7:[1,3],6:[2,3],5:[3,3]};
+
+function drawNorth(houses, lagnaSign, title){
+  let s = `<svg class="rasi" viewBox="-4 -4 408 408">`;
+  houses.forEach((h,i)=>{
+    const cell = NORTH[i], [cx,cy] = cell.c;
+    const g = h.grahas;
+    s += `<polygon class="cell${h.house===1?" lag":""}" points="${cell.p}"><title>${ORD(h.house)} house · ${h.sign} · lord ${h.lord}</title></polygon>`;
+    s += `<text class="hn" x="${cx}" y="${cy-30}">${h.house}</text>`;
+    s += `<text class="sn" x="${cx}" y="${cy-18}">${h.sign.slice(0,3)}</text>`;
+    // Spacing adapts to how many grahas share the house. Four or more and the
+    // degrees are dropped, because a stack of tiny numbers is worse than none.
+    const n = g.length;
+    const showDeg = n <= 3;
+    const row = n >= 5 ? 11 : n === 4 ? 13 : 16;
+    const start = cy - (n-1)*row/2;
+    g.forEach((gr,j)=>{
+      const lbl = gr.name.slice(0,2) + (gr.retrograde?"ᴿ":"");
+      const y = start + j*row;
+      s += `<text class="gr" x="${cx}" y="${y}" fill="${GC(gr.name)}"${n>=5?' style="font-size:9px"':n===4?' style="font-size:10px"':""}>${lbl}${showDeg?"":`<tspan class="gd" dx="4">${Math.floor(gr.degree||0)}</tspan>`}</text>`;
+      if(showDeg && gr.degree!==null) s += `<text class="gd" x="${cx}" y="${y+8}">${Math.floor(gr.degree)}°</text>`;
+    });
+  });
+  s += `<polygon class="frame" points="0,0 400,0 400,400 0,400"/>
+        <line class="frame" x1="0" y1="0" x2="400" y2="400"/><line class="frame" x1="400" y1="0" x2="0" y2="400"/>
+        <polygon class="frame" points="200,0 400,200 200,400 0,200"/></svg>`;
+  return s;
+}
+function drawSouth(houses){
+  const bySign = {}; houses.forEach(h=>bySign[h.sign_index]=h);
+  let s = `<svg class="rasi" viewBox="-4 -4 408 408">`;
+  for(let si=0; si<12; si++){
+    const [c,r] = SOUTH_POS[si], x = c*100, y = r*100, h = bySign[si];
+    s += `<rect class="cell${h.house===1?" lag":""}" x="${x}" y="${y}" width="100" height="100" rx="2"><title>${ORD(h.house)} house · ${h.sign}</title></rect>`;
+    s += `<text class="hn" x="${x+13}" y="${y+12}">${h.house}</text>`;
+    s += `<text class="sn" x="${x+50}" y="${y+88}">${h.sign.slice(0,3)}</text>`;
+    const start = y+34;
+    h.grahas.forEach((gr,j)=>{
+      s += `<text class="gr" x="${x+50}" y="${start+j*14}" fill="${GC(gr.name)}">${gr.name.slice(0,2)}${gr.retrograde?"ᴿ":""}${gr.degree!==null?" "+Math.floor(gr.degree)+"°":""}</text>`;
+    });
+  }
+  s += `<rect class="frame" x="0" y="0" width="400" height="400"/><rect class="frame" x="100" y="100" width="200" height="200"/></svg>`;
+  return s;
+}
+function legend(){
+  return `<div class="legend">${["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn","Rahu","Ketu"]
+    .map(n=>`<span><i style="background:${GC(n)}"></i>${n}</span>`).join("")}</div>`;
+}
+function sBar(v){
+  const cls = v>=60?"s-hi":v>=40?"s-md":"s-lo";
+  return `<div class="bar"><i class="${cls}" style="width:${Math.max(3,v)}%"></i></div>`;
+}
+
+/* ===== overview ===== */
+const HL_LABEL = {core:"Who this is", strength:"What is working", pressure:"What is under strain",
+                  now:"What is running", prediction:"What is coming", work:"What to work on"};
+function headlineCard(h){
+  const dated = h.kind === "prediction";
+  const m = h.title.match(/^(From\s+[^:]+|Sade Sati[^,]*)/);
+  return `<div class="card hl k-${h.kind}">
+    <div class="hl-kind">${HL_LABEL[h.kind] || h.kind}</div>
+    <div class="hl-title">${dated?`<span class="datebadge">${esc(h.title.split(":")[0])}</span>${esc(h.title.split(":").slice(1).join(":").trim() || "")}`:esc(h.title)}</div>
+    <div class="${dated?"t-pred":"t-read"}">${esc(h.text)}</div>
+    <div class="t-fact">${esc(h.evidence)}</div>
+  </div>`;
+}
+
+function renderOverview(){
+  const d = DATA, L = d.lagna, P = d.panchanga, ch = d.dasha.chain;
+  const chartHtml = vargaMode==="north" ? drawNorth(d.grid, L.sign_index) : drawSouth(d.grid);
+  const nk = d.nakshatras.janma;
+
+  $("#ov").innerHTML = `
+  <div class="splitgrid" style="margin-bottom:14px">
+    <div class="card">
+      <div class="card-h"><h4>Rasi · D1</h4><div class="spacer"></div>
+        <div class="seg"><button class="${vargaMode==="north"?"on":""}" onclick="setMode('north')">North</button><button class="${vargaMode==="south"?"on":""}" onclick="setMode('south')">South</button></div>
+      </div>
+      <div class="card-b"><div class="chart-wrap">${chartHtml}</div>${legend()}</div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h4>${esc(d.birth.name)}</h4><div class="spacer"></div>
+        <span class="sub">${esc(d.birth.date_label)}</span></div>
+      <div class="card-b">
+        <dl class="keyline">
+          <dt>Lagna</dt><dd>${esc(L.sign)} ${esc(L.degree_label)} · ${esc(L.sign_sanskrit)}</dd>
+          <dt>Lagna lord</dt><dd>${esc(L.lord)} in the ${ORD(L.lord_house)}</dd>
+          <dt>Moon</dt><dd>${esc(nk.name)} pada ${nk.pada} · lord ${esc(nk.lord)}</dd>
+          <dt>Born</dt><dd>${esc(d.birth.time)} · ${esc(d.birth.place || d.birth.latitude.toFixed(3)+", "+d.birth.longitude.toFixed(3))}</dd>
+          <dt>Zone</dt><dd class="mono">${esc(d.birth.timezone)} ${esc(d.birth.utc_offset)}</dd>
+          <dt>Ayanamsa</dt><dd>${esc(d.birth.ayanamsa)} ${esc(d.birth.ayanamsa_label)}</dd>
+          <dt>Panchanga</dt><dd>${esc(P.tithi)} · ${esc(P.vara)} · ${esc(P.yoga)} yoga</dd>
+          <dt>Running</dt><dd>${ch.length?`${esc(ch[0].lord)} / ${ch[1]?esc(ch[1].lord):"–"} to ${esc((ch[1]||ch[0]).end_date)}`:"–"}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-h"><h4>The main things</h4><div class="spacer"></div>
+      <span class="sub">${esc(d.brief.moment_label)}</span></div>
+    <div class="legend-key" style="border-bottom:1px solid var(--line)">
+      <span><i style="background:var(--mint)"></i>supports</span>
+      <span><i style="background:var(--amber)"></i>dated prediction</span>
+      <span><i style="background:var(--rose)"></i>under strain</span>
+      <span><i style="background:var(--iris)"></i>mechanism</span>
+      <span style="margin-left:auto;opacity:.7">every finding shows the chart evidence beneath it</span>
+    </div>
+    <div>${d.brief.headlines.map(h=>`<div style="border-bottom:1px solid rgba(255,255,255,.04)">${headlineCard(h)}</div>`).join("")}</div>
+  </div>
+
+  <div class="grid g4" style="margin-bottom:14px">
+    ${stat("Lagna", L.sign, `${L.degree_label} · ${L.sign_sanskrit} · ${L.element} ${L.mode.toLowerCase()}`)}
+    ${stat("Moon nakshatra", nk.name, `pada ${nk.pada} · lord ${nk.lord} · ${nk.gana} gana`)}
+    ${stat("Running dasha", ch.length?`${ch[0].lord} / ${ch[1]?ch[1].lord:"–"}`:"–", ch.length?`${ch[0].start_date} – ${ch[0].end_date}`:"")}
+    ${stat("Yogas found", String(d.yogas.total), `${d.yogas.supportive} supportive · ${d.yogas.challenging} challenging`)}
+  </div>
+
+  <div class="grid g2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="card-h"><h4>Running chain</h4><span class="sub">${esc(d.transits.moment_label)}</span></div>
+      <div class="card-b">
+        ${ch.map(c=>`
+          <div style="margin-bottom:13px">
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <span class="gname" style="font-size:14px;color:${GC(c.lord)}"><i style="background:${GC(c.lord)}"></i>${c.lord}</span>
+              <span style="font-size:10px;letter-spacing:.7px;text-transform:uppercase;color:var(--tx-3);font-weight:600">${c.level_name}</span>
+              <span class="spacer" style="flex:1"></span>
+              <span class="mono" style="color:var(--tx-3)">${c.percent}%</span>
+            </div>
+            <div class="mono" style="color:var(--tx-2);margin-top:3px;font-size:11px">${c.start_date} → ${c.end_date} · ${c.duration} · ${c.remaining} left</div>
+            <div class="bar" style="margin-top:6px"><i class="s-hi" style="width:${c.percent}%"></i></div>
+          </div>`).join("")}
+        <div class="note mint" style="margin-top:14px">${esc(d.dasha.seed.note)}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-bottom:14px">
+    <div class="card"><div class="card-h"><h4>Panchanga at birth</h4></div><div class="card-b">
+      <div class="grid g2" style="gap:10px">
+        ${kv("Tithi",P.tithi)}${kv("Vara",`${P.vara} · ${P.vara_lord}`)}
+        ${kv("Nakshatra",`${P.nakshatra} pada ${P.pada}`)}${kv("Nakshatra lord",P.nakshatra_lord)}
+        ${kv("Yoga",P.yoga)}${kv("Karana",P.karana)}
+        ${kv("Gana",P.gana)}${kv("Moon phase",P.moon_phase+"% of the cycle")}
+      </div></div></div>
+    <div class="card"><div class="card-h"><h4>Cast with</h4></div><div class="card-b">
+      <div class="grid g2" style="gap:10px">
+        ${kv("Ayanamsa",`${d.birth.ayanamsa} ${d.birth.ayanamsa_label}`)}${kv("Timezone",`${d.birth.timezone} ${d.birth.utc_offset}`)}
+        ${kv("Coordinates",`${d.birth.latitude.toFixed(4)}, ${d.birth.longitude.toFixed(4)}`)}${kv("Julian day",String(d.birth.julian_day))}
+        ${kv("House system","Whole sign")}${kv("Node","Mean")}
+      </div>
+      <div class="note amber" style="margin-top:12px">Nothing in this engine has been diffed against Jagannatha Hora. Verify a chart you already know cold before you rely on it: ayanamsa, then lagna degree, then Moon longitude, then dasha balance.</div>
+    </div></div>
+  </div>
+
+  <div class="card"><div class="card-h"><h4>Where every house lord sits</h4><div class="spacer"></div>
+    <span class="sub">the first thing to read on any chart</span></div>
+    <div style="overflow-x:auto">${lordTable()}</div></div>`;
+}
+window.setMode = m => { vargaMode = m; renderOverview(); renderVargas(); };
+
+function stat(k,v,m){ return `<div class="card stat"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="m">${esc(m)}</div></div>`; }
+function kv(k,v){ return `<div><div style="font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--tx-3);font-weight:600">${esc(k)}</div>
+  <div style="font-size:13px;margin-top:2px">${esc(v)}</div></div>`; }
+
+function lordTable(){
+  return `<table><thead><tr>
+    <th>House</th><th>Sign</th><th>Lord</th><th>Sits in</th><th>In sign</th><th>Nakshatra</th><th>Dignity</th><th>Function</th><th>Strength</th>
+  </tr></thead><tbody>
+  ${DATA.lord_map.map(r=>`<tr>
+    <td class="num">${r.house}${r.also_rules.length?`<span style="color:var(--tx-3)"> +${r.also_rules.join(",")}</span>`:""}</td>
+    <td>${r.sign}</td>
+    <td><span class="gname" style="color:${GC(r.lord)}"><i style="background:${GC(r.lord)}"></i>${r.lord}</span>
+        ${r.retrograde?'<span class="chip iris mini" style="margin-left:5px">R</span>':""}
+        ${r.combust?'<span class="chip rose mini" style="margin-left:5px">combust</span>':""}</td>
+    <td class="num">${ORD(r.sits_in_house)}</td>
+    <td>${r.sits_in_sign} <span class="mono" style="color:var(--tx-3)">${r.degree}°</span></td>
+    <td style="color:var(--tx-2)">${r.nakshatra}</td>
+    <td>${dignChip(r.dignity)}</td>
+    <td style="color:var(--tx-2);font-size:11.5px">${r.functional}</td>
+    <td><div style="display:flex;align-items:center;gap:7px">${sBar(r.strength)}<span class="mono" style="color:var(--tx-3)">${Math.round(r.strength)}</span></div></td>
+  </tr>`).join("")}</tbody></table>`;
+}
+function dignChip(d){
+  const good = ["Exalted","Moolatrikona","Own sign","Great friend's sign","Friend's sign"];
+  const bad = ["Debilitated","Great enemy's sign","Enemy's sign"];
+  const c = good.includes(d)?"mint":bad.includes(d)?"rose":"";
+  return `<span class="chip ${c}">${esc(d)}</span>`;
+}
+
+/* ===== houses & lords ===== */
+function renderLords(){
+  $("#lords").innerHTML = `
+    <div class="card" style="margin-bottom:14px"><div style="overflow-x:auto">${lordTable()}</div></div>
+    <div class="grid gauto">${DATA.houses.map(houseCard).join("")}</div>`;
+  $$(".hcard").forEach(c=>c.querySelector(".hh").onclick = ()=>c.classList.toggle("open"));
+}
+const VC = {"Very strong":"mint","Strong":"mint","Mixed":"amber","Under pressure":"rose","Weak":"rose"};
+function houseCard(h){
+  return `<div class="card hcard">
+    <div class="hh">
+      <div class="hnum">${h.house}</div>
+      <div class="ht">
+        <h5>${h.title}</h5>
+        <p>${h.sign} · lord ${h.lord} in the ${ORD(h.lord_house)} · ${h.category}</p>
+      </div>
+      <span class="chip ${VC[h.verdict]||""}">${h.verdict}</span>
+    </div>
+    <div class="hbody">
+      <div class="block"><h6>What this house covers</h6><p>${esc(h.theme)}</p></div>
+
+      <div class="block"><h6>The reading</h6>
+        <p class="lead"><b style="color:${GC(h.lord)}">${esc(h.headline)}.</b> ${esc(h.reading)}</p></div>
+
+      <div class="block"><h6>Why · the sign</h6>
+        <p>${esc(h.sign_effect.house_sign_note)}</p>
+        <p style="margin-top:6px">${esc(h.sign_effect.lord_sign_note)}</p></div>
+
+      <div class="block"><h6>Why · condition of the lord</h6>
+        <div class="note ${h.strength.score>=60?"mint":h.strength.score>=40?"amber":"rose"}">
+          <b>${h.lord} · ${h.strength.band} · ${Math.round(h.strength.score)}/100.</b> ${esc(h.dignity.reason)}</div>
+        ${h.modifiers.map(m=>`<div class="note"><b>${esc(m.label)}.</b> ${esc(m.text)}</div>`).join("")}
+        <div class="note iris"><b>Function.</b> ${esc(h.functional.reason)}</div>
+      </div>
+
+      ${h.strength.factors.length?`<div class="block"><h6>Strength, factor by factor</h6>
+        <ul class="reasons">${h.strength.factors.map(f=>`<li><b style="color:${f.delta>0?"var(--mint)":"var(--rose)"}">${f.delta>0?"+":""}${f.delta}</b> ${esc(f.factor)} — ${esc(f.note)}</li>`).join("")}</ul></div>`:""}
+
+      ${h.occupants.length?`<div class="block"><h6>Grahas sitting here</h6>
+        ${h.occupants.map(o=>`<div class="note"><b style="color:${GC(o.graha)}">${o.graha}</b> ${o.degree}° ${o.sign} · ${o.nakshatra} pada ${o.pada}${o.retrograde?" · retrograde":""}${o.combust?" · combust":""}<br>${esc(o.note)}</div>`).join("")}</div>`:
+        `<div class="block"><h6>Grahas sitting here</h6><p style="color:var(--tx-3)">Empty. Read the house entirely through its lord.</p></div>`}
+
+      ${h.aspects.length?`<div class="block"><h6>Aspects onto this house</h6>
+        ${h.aspects.map(a=>`<div class="note ${a.benefic?"mint":""}"><b style="color:${GC(a.graha)}">${a.graha}</b> · ${a.aspect}<br>${esc(a.note)}</div>`).join("")}</div>`:""}
+
+      <div class="block"><h6>How the verdict was reached</h6>
+        <ul class="reasons">${h.verdict_reason.map(r=>`<li>${esc(r)}</li>`).join("")}</ul></div>
+    </div></div>`;
+}
+
+/* ===== grahas ===== */
+function renderGrahas(){
+  $("#grahas").innerHTML = `<div class="grid gauto">${DATA.grahas.map(grahaCard).join("")}</div>`;
+}
+function grahaCard(g){
+  return `<div class="card">
+    <div class="card-h">
+      <span class="gname" style="font-size:14px;color:${GC(g.name)}"><i style="background:${GC(g.name)}"></i>${g.name}</span>
+      <span class="sub">${esc(g.sanskrit)}</span><div class="spacer"></div>
+      ${g.retrograde?'<span class="chip iris">retrograde</span>':""}
+      ${g.combust?'<span class="chip rose">combust</span>':""}
+      ${g.vargottama?'<span class="chip mint">vargottama</span>':""}
+    </div>
+    <div class="card-b">
+      <div class="grid g2" style="gap:9px;margin-bottom:13px">
+        ${kv("Position",`${g.degree_label} ${g.sign}`)}
+        ${kv("House",`${ORD(g.house)} · ${g.house_title}`)}
+        ${kv("Nakshatra",`${g.nakshatra} pada ${g.pada}`)}
+        ${kv("Nakshatra lord",g.nakshatra_lord)}
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:13px">
+        ${dignChip(g.dignity.label)}
+        <span class="chip">${esc(g.functional.label)}</span>
+        <div style="flex:1"></div>
+        <span class="mono" style="color:var(--tx-3)">${g.strength.band} ${Math.round(g.strength.score)}</span>
+      </div>
+      ${sBar(g.strength.score)}
+      <div class="block" style="margin-top:14px"><h6>Karaka</h6><p>${esc(g.karaka)}</p></div>
+      <div class="block"><h6>${esc(g.nakshatra_detail.name)} pada ${g.nakshatra_detail.pada}</h6>
+        <p class="t-read" style="font-size:12.5px">${esc(g.nakshatra_detail.drive)}</p>
+        <div class="tags" style="margin-bottom:7px">
+          <span class="chip">lord ${esc(g.nakshatra_detail.lord)}</span>
+          <span class="chip iris">${esc(g.nakshatra_detail.pada_navamsa)} navamsa · ${esc(g.nakshatra_detail.pada_lord)}</span>
+          <span class="chip ${g.nakshatra_detail.tara.quality==="good"?"mint":"rose"}">tara ${g.nakshatra_detail.tara.n} ${esc(g.nakshatra_detail.tara.name)}</span>
+          <span class="chip">${esc(g.nakshatra_detail.gana)}</span>
+        </div>
+        <div class="note"><b>Shakti.</b> ${esc(g.nakshatra_detail.shakti)}. Deity ${esc(g.nakshatra_detail.deity)}.</div>
+        <div class="note">${esc(g.nakshatra_detail.pada_note)}</div>
+        ${g.nakshatra_detail.gandanta?`<div class="note rose"><b>Gandanta.</b> ${esc(g.nakshatra_detail.gandanta.note)}</div>`:""}
+        <div class="note iris"><b>Delivers through ${esc(g.nakshatra_chain.terminates_in)}.</b> ${esc(g.nakshatra_chain.note)}</div>
+      </div>
+      <div class="block"><h6>${esc(g.in_house_headline)}</h6>
+        <p class="lead">${esc(g.in_house)}</p></div>
+      <div class="block"><h6>${esc(g.in_sign_headline)}</h6>
+        <p>${esc(g.in_sign)}</p></div>
+      <div class="block"><h6>How it behaves generally</h6><p>${esc(g.behaviour)}</p></div>
+      <div class="block"><h6>Dignity</h6><div class="note">${esc(g.dignity.reason)}</div></div>
+      <div class="block"><h6>Function in this chart</h6><div class="note iris">${esc(g.functional.reason)}</div></div>
+      <div class="block"><h6>What it delivers as a house lord</h6>
+        ${g.readings.map(r=>`<div class="note"><b>${esc(r.headline)}.</b> ${esc(r.text)}</div>`).join("")}</div>
+      <div class="block"><h6>Aspects</h6><p>Throws drishti on the ${g.aspects_houses.map(ORD).join(", ")} houses. Dispositor ${g.dispositor} sits in the ${ORD(g.dispositor_house)}.</p></div>
+      ${g.strength.factors.length?`<div class="block"><h6>Strength factors</h6>
+        <ul class="reasons">${g.strength.factors.map(f=>`<li><b style="color:${f.delta>0?"var(--mint)":"var(--rose)"}">${f.delta>0?"+":""}${f.delta}</b> ${esc(f.factor)} — ${esc(f.note)}</li>`).join("")}</ul></div>`:""}
+    </div></div>`;
+}
+
+/* ===== yogas ===== */
+const YK = {raja:"mint",dhana:"amber",mahapurusha:"mint",viparita:"iris",lunar:"iris",spiritual:"mint",dosha:"rose",error:"rose"};
+function renderYogas(){
+  const ys = DATA.yogas.yogas;
+  if(!ys.length){ $("#yogas").innerHTML = `<div class="card"><div class="empty">No yogas detected by the current set of detectors.</div></div>`; return; }
+  const groups = {};
+  ys.forEach(y=>{ (groups[y.kind] = groups[y.kind]||[]).push(y); });
+  const names = {raja:"Raja yogas",dhana:"Dhana yogas",mahapurusha:"Pancha Mahapurusha",viparita:"Viparita raja yogas",
+    lunar:"Lunar yogas",spiritual:"Learning and practice",dosha:"Doshas and cautions",error:"Detector errors"};
+  $("#yogas").innerHTML = Object.keys(names).filter(k=>groups[k]).map(k=>`
+    <div style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:11px">
+        <h4 style="font-size:12.5px;font-weight:640">${names[k]}</h4>
+        <span class="chip ${YK[k]}">${groups[k].length}</span>
+        <div style="flex:1;height:1px;background:var(--line)"></div>
+      </div>
+      <div class="grid gauto">${groups[k].map(yogaCard).join("")}</div>
+    </div>`).join("");
+}
+function yogaCard(y){
+  return `<div class="card yoga">
+    <div class="yh"><h5>${esc(y.name)}</h5><div class="spacer"></div>
+      <span class="chip ${YK[y.kind]}">${Math.round(y.strength)}</span></div>
+    <p class="why"><b style="color:var(--tx)">${esc(y.summary)}</b></p>
+    <p class="why">${esc(y.reason)}</p>
+    <p class="eff">${esc(y.effect)}</p>
+    <div class="gl">${y.grahas.map(g=>`<span class="chip" style="color:${GC(g)}"><i style="width:5px;height:5px;border-radius:50%;background:${GC(g)};display:inline-block"></i>${g}</span>`).join("")}</div>
+  </div>`;
+}
+
+/* ===== dasha ===== */
+async function renderDasha(){
+  const box = $("#dasha");
+  box.innerHTML = `<div class="card"><div class="card-b"><span class="spin"></span></div></div>`;
+  let branch;
+  try{ branch = await post("/api/dasha",{birth:BIRTH,path:dashaPath}); }
+  catch(e){ box.innerHTML = `<div class="err">${esc(e.message)}</div>`; return; }
+
+  const now = new Date(DATA.computed_at);
+  const chain = DATA.dasha.chain;
+
+  const crumbs = `<div class="crumb">
+    <button class="${dashaPath.length===0?"on":""}" onclick="setPath([])">All mahadashas</button>
+    ${dashaPath.map((l,i)=>`<span class="sep">›</span><button class="${i===dashaPath.length-1?"on":""}" onclick="setPath(${JSON.stringify(dashaPath.slice(0,i+1))})">${l}</button>`).join("")}
+    ${dashaPath.length<3?`<span class="sep" style="margin-left:8px">click a period to go deeper</span>`:`<span class="sep" style="margin-left:8px">deepest level</span>`}
+  </div>`;
+
+  const rows = branch.periods.map(p=>{
+    const st = new Date(p.start), en = new Date(p.end);
+    const isNow = st<=now && now<en, isPast = en < now;
+    const pct = isNow ? Math.round(100*(now-st)/(en-st)) : 0;
+    return `<div class="prow ${isNow?"now":""} ${isPast?"past":""}" onclick="drill('${p.lord}')">
+      <div class="pd">${p.start_date}</div>
+      <div>
+        <div class="pl"><span class="gname" style="color:${GC(p.lord)}"><i style="background:${GC(p.lord)}"></i>${p.lord}</span>
+          ${isNow?'<span class="chip mint dot" style="margin-left:6px">running now</span>':""}</div>
+        ${isNow?`<div class="track"><i style="width:${pct}%"></i></div>`:""}
+      </div>
+      <div class="pdur">${p.duration}<br><span style="opacity:.6">to ${p.end_date}</span></div>
+    </div>`;
+  }).join("");
+
+  const rd = branch.reading || DATA.dasha.reading;
+  box.innerHTML = `
+    <div class="grid g4" style="margin-bottom:14px">
+      ${chain.map(c=>`<div class="card chain-card">
+        <div class="lv">${c.level_name}</div>
+        <div class="ld" style="color:${GC(c.lord)}">${c.lord}</div>
+        <div class="dt">${c.start_date} → ${c.end_date}</div>
+        <div class="pr"><div class="bar"><i class="s-hi" style="width:${c.percent}%"></i></div>
+          <div class="pct"><span>${c.elapsed} in</span><span>${c.remaining} left</span></div></div>
+      </div>`).join("")}
+    </div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-h"><h4>What this chain means for this chart</h4><div class="spacer"></div>
+        <span class="sub">${DATA.dasha.chain.map(c=>c.lord).join(" / ")}</span></div>
+      <div class="card-b">
+        ${DATA.dasha.reading.levels.map(l=>`
+          <div class="block">
+            <h6>${l.level_name} · ${l.lord}</h6>
+            <p class="lead">${esc(l.headline)}. <span style="color:var(--tx-2)">${esc(l.functional)} · ${esc(l.dignity)} · ${l.band.toLowerCase()} at ${Math.round(l.strength)}/100.</span></p>
+            ${l.delivers.map(d=>`<div class="note" style="margin-top:7px">${d.house?`<b>${ORD(d.house)} house · ${esc(d.title)}.</b> `:""}${esc(d.text)}</div>`).join("")}
+          </div>`).join("")}
+        ${DATA.dasha.reading.interaction.length?`<div class="block"><h6>How the levels interact</h6>
+          ${DATA.dasha.reading.interaction.map(i=>`<div class="note ${i.tone==="difficult"?"rose":i.tone==="supportive"?"mint":i.tone==="active"?"amber":""}">
+            <b>${i.pair[0]} → ${i.pair[1]} · ${i.tone}.</b> ${esc(i.text)}</div>`).join("")}</div>`:""}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h4>${branch.level_name}s${dashaPath.length?" inside "+dashaPath.join(" / "):""}</h4>
+        <div class="spacer"></div><span class="sub">${branch.periods.length} periods</span></div>
+      <div class="card-b" style="padding:14px 18px 4px">${crumbs}</div>
+      <div>${rows}</div>
+    </div>`;
+}
+window.setPath = p => { dashaPath = p; renderDasha(); };
+window.drill = lord => { if(dashaPath.length>=3) return; dashaPath = [...dashaPath, lord]; renderDasha(); };
+
+/* ===== segments ===== */
+function renderSegmentsPage(){
+  const y = new Date().getFullYear();
+  $("#segments").innerHTML = `
+    <div class="card" style="margin-bottom:14px"><div class="card-b" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+      <div class="field" style="margin:0;min-width:150px"><label>From</label><input id="s-from" type="date" value="${y}-01-01"></div>
+      <div class="field" style="margin:0;min-width:150px"><label>To</label><input id="s-to" type="date" value="${y+5}-01-01"></div>
+      <div class="field" style="margin:0;min-width:170px"><label>Level</label><select id="s-lvl">
+        <option value="1">Mahadasha</option><option value="2" selected>Antardasha</option>
+        <option value="3">Pratyantardasha</option><option value="4">Sookshma</option></select></div>
+      <button class="btn pri" onclick="loadSegments()">Scan</button>
+    </div></div>
+    <div id="seg-out"><div class="card"><div class="empty">Pick a window and scan.</div></div></div>`;
+  loadSegments();
+}
+window.loadSegments = async function(){
+  const out = $("#seg-out");
+  out.innerHTML = `<div class="card"><div class="card-b"><span class="spin"></span></div></div>`;
+  try{
+    const r = await post("/api/segments",{birth:BIRTH,start:$("#s-from").value,end:$("#s-to").value,level:parseInt($("#s-lvl").value)});
+    const now = new Date(DATA.computed_at);
+    out.innerHTML = `<div class="card">
+      <div class="card-h"><h4>${r.level_name} bands</h4><div class="spacer"></div><span class="sub">${r.segments.length} segments</span></div>
+      <div style="overflow-x:auto"><table><thead><tr>
+        <th>Lord</th><th>From</th><th>To</th><th>Length</th><th>Rules</th><th>Sits in</th><th>Function</th><th>Strength</th></tr></thead>
+      <tbody>${r.segments.map(s=>{
+        const isNow = new Date(s.start)<=now && now<new Date(s.end);
+        return `<tr style="${isNow?"background:var(--sf-mint)":""}">
+          <td><span class="gname" style="color:${GC(s.lord)}"><i style="background:${GC(s.lord)}"></i>${s.lord}</span>${isNow?' <span class="chip mint dot">now</span>':""}</td>
+          <td class="num">${s.start_date}</td><td class="num">${s.end_date}</td><td class="num">${s.duration}</td>
+          <td class="num">${s.rules.length?s.rules.map(ORD).join(", "):"–"}</td>
+          <td class="num">${ORD(s.sits_in)}</td>
+          <td style="color:var(--tx-2);font-size:11.5px">${s.functional}</td>
+          <td><div style="display:flex;align-items:center;gap:7px">${sBar(s.strength)}<span class="mono" style="color:var(--tx-3)">${Math.round(s.strength)}</span></div></td>
+        </tr>`;}).join("")}</tbody></table></div></div>`;
+  }catch(e){ out.innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+};
+
+/* ===== transits ===== */
+function renderTransits(){
+  const t = DATA.transits, ss = t.sade_sati;
+  const now = new Date(t.moment);
+  $("#transits").innerHTML = `
+    <div class="grid g2" style="margin-bottom:14px">
+      <div class="card"><div class="card-h"><h4>Saturn and the natal Moon</h4><div class="spacer"></div>
+        <span class="chip ${ss.active?"amber":"mint"}">${ss.active?"Sade Sati active":"Not in Sade Sati"}</span></div>
+        <div class="card-b">
+          ${ss.active?`<div class="note amber"><b>${esc(ss.phase)} · ${esc(ss.position)}.</b> ${esc(ss.text)}</div>`:
+            `<div class="note mint">Saturn is in ${esc(ss.saturn_sign)} and the natal Moon is in ${esc(ss.moon_sign)}. That is not one of the three Sade Sati positions.</div>`}
+          ${ss.ashtama?`<div class="note rose"><b>Ashtama Shani.</b> Saturn is transiting the 8th from the natal Moon, which the tradition treats as harder than Sade Sati itself while it lasts.</div>`:""}
+          ${ss.kantaka?`<div class="note amber"><b>Kantaka Shani.</b> Saturn is in the 4th or 10th from the natal Moon: pressure on home and work at once.</div>`:""}
+          <div class="grid g2" style="gap:10px;margin-top:12px">
+            ${kv("Natal Moon", ss.moon_sign)}${kv("Saturn now", ss.saturn_sign)}
+            ${ss.window_start?kv(ss.active?"This cycle opened":"Next cycle opens", ss.window_start):""}
+            ${ss.window_end?kv(ss.active?"This cycle closes":"Next cycle closes", ss.window_end):""}
+          </div>
+        </div></div>
+      <div class="card"><div class="card-h"><h4>Transit grid</h4><span class="sub">${esc(t.moment_label)}</span></div>
+        <div class="card-b"><div class="chart-wrap">${drawNorth(transitGrid(),0)}</div>${legend()}</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-h"><h4>Where the grahas are now</h4><div class="spacer"></div><span class="sub">against your natal houses</span></div>
+      <div style="overflow-x:auto"><table><thead><tr>
+        <th>Graha</th><th>Sign</th><th>Deg</th><th>Nakshatra</th><th>Tara</th><th>Natal house</th><th>From Moon</th><th>Aspecting</th><th>Contacts</th>
+      </tr></thead><tbody>
+      ${t.positions.map(p=>`<tr>
+        <td><span class="gname" style="color:${GC(p.graha)}"><i style="background:${GC(p.graha)}"></i>${p.graha}</span>${p.retrograde?' <span class="chip iris mini">R</span>':""}</td>
+        <td>${p.sign}</td><td class="num">${p.degree}°</td>
+        <td style="color:var(--tx-2)">${p.nakshatra} ${p.pada}<br><span class="mono" style="font-size:10px;color:var(--tx-3)">lord ${esc(p.nakshatra_lord)}</span></td>
+        <td class="${p.tara.quality==="good"?"tara-good":"tara-bad"}" style="font-size:11.5px">${p.tara.n} ${esc(p.tara.name)}</td>
+        <td class="num">${ORD(p.house)} · ${esc(p.house_title)}</td>
+        <td class="num">${ORD(p.from_moon)}</td>
+        <td class="num">${p.aspecting_houses.map(ORD).join(", ")}</td>
+        <td style="color:var(--tx-2);font-size:11.5px">${p.natal_contacts.length?p.natal_contacts.map(c=>`${c.kind==="conjunction"?"☌":"☍"} ${c.graha} ${c.orb}°`).join("<br>"):"–"}</td>
+      </tr>`).join("")}</tbody></table></div></div>
+
+    <div class="grid g2">
+      <div class="card"><div class="card-h"><h4>What each transit is doing</h4><div class="spacer"></div>
+        <span class="sub">plain language</span></div><div class="card-b">
+        ${t.positions.filter(p=>p.phala && p.phala.area).map(p=>`
+          <div class="note" style="border-left-color:${GC(p.graha)}">
+            <b style="color:${GC(p.graha)}">${p.graha} in ${p.sign}, your ${ORD(p.house)} house</b>
+            <span style="color:var(--tx-3)"> · stays ${esc(p.duration)}${p.retrograde?" · retrograde":""}</span><br>
+            <b>Touches:</b> ${esc(p.phala.area)}<br>
+            ${esc(p.phala.what)}<br>
+            <b>Watch for:</b> ${esc(p.phala.watch)}<br>
+            <b>What helps:</b> ${esc(p.phala.helps)}
+            <details style="margin-top:7px"><summary style="cursor:pointer;color:var(--tx-3);font-size:11px">the chart reasoning</summary>
+              <div style="margin-top:6px;color:var(--tx-3);font-size:11.5px;line-height:1.6">${esc(p.note)}</div></details>
+          </div>`).join("")}
+      </div></div>
+      <div class="card"><div class="card-h"><h4>Coming up</h4><div class="spacer"></div><span class="sub">ingresses and stations</span></div>
+        <div class="card-b"><div class="tl">
+          ${t.upcoming.slice(0,28).map(e=>{
+            const soon = (new Date(e.date) - now) < 1000*60*60*24*60;
+            return `<div class="tl-item ${soon?"soon":""}">
+              <div class="td">${e.day}</div>
+              <div class="tt" style="color:${GC(e.graha)}">${esc(e.label)}</div>
+              ${e.house?`<div class="tn">Into your ${ORD(e.house)} house, the ${ORD(e.from_moon)} from your Moon.
+                ${e.phala&&e.phala.area?`<b style="color:var(--tx-2)">Touches ${esc(e.phala.area.toLowerCase())}.</b>
+                  ${e.slow?" "+esc(e.phala.watch):""}`:""}</div>`:
+                        `<div class="tn">${esc(e.note)}</div>`}
+            </div>`;}).join("")}
+        </div></div></div>
+    </div>`;
+}
+function transitGrid(){
+  const lag = DATA.lagna.sign_index, byHouse = {};
+  for(let h=1;h<=12;h++) byHouse[h] = {house:h, sign_index:(lag+h-1)%12, sign:DATA.grid[h-1].sign, lord:DATA.grid[h-1].lord, grahas:[]};
+  DATA.transits.positions.forEach(p=>byHouse[p.house].grahas.push(
+    {name:p.graha, degree:p.degree, retrograde:p.retrograde, combust:false, dignity:""}));
+  return Object.values(byHouse);
+}
+
+/* ===== vargas ===== */
+function renderVargas(){
+  $("#vargas").innerHTML = `
+    ${DATA.vargottama.length?`<div class="card" style="margin-bottom:14px"><div class="card-b">
+      <div class="note mint"><b>Vargottama:</b> ${DATA.vargottama.join(", ")}. Same sign in D1 and D9, so what the rasi promises the navamsa confirms.</div></div></div>`:""}
+    <div class="grid g3">${DATA.vargas.map(v=>`
+      <div class="card vcard">
+        <h5>${esc(v.name)}</h5><p>${esc(v.purpose)} · lagna ${esc(v.lagna_sign)}</p>
+        ${vargaMode==="north"?drawNorth(v.houses,0):drawSouth(v.houses)}
+      </div>`).join("")}</div>`;
+}
+
+/* ===== reference ===== */
+function renderReference(){
+  const R = DATA.reference;
+  $("#reference").innerHTML = `
+  <div class="grid g2" style="margin-bottom:14px">
+    <div class="card"><div class="card-h"><h4>Houses</h4></div><div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Name</th><th>Covers</th><th>Class</th></tr></thead>
+      <tbody>${R.houses.map(h=>`<tr><td class="num">${h.num}</td><td><b>${h.name}</b><br><span style="color:var(--tx-3);font-size:11px">${h.title}</span></td>
+      <td style="color:var(--tx-2);font-size:11.5px">${esc(h.keywords.join(", "))}</td><td style="font-size:11px;color:var(--tx-3)">${h.category}</td></tr>`).join("")}</tbody></table></div></div>
+    <div class="card"><div class="card-h"><h4>Signs</h4></div><div style="overflow-x:auto"><table><thead><tr><th>Sign</th><th>Lord</th><th>Element</th><th>Mode</th><th>Temperament</th></tr></thead>
+      <tbody>${R.signs.map(s=>`<tr><td><b>${s.name}</b><br><span style="color:var(--tx-3);font-size:11px">${s.sanskrit}</span></td>
+      <td><span class="gname" style="color:${GC(s.lord)}"><i style="background:${GC(s.lord)}"></i>${s.lord}</span></td>
+      <td>${s.element}</td><td>${s.mode}</td><td style="color:var(--tx-2);font-size:11.5px">${esc(s.temperament)}</td></tr>`).join("")}</tbody></table></div></div>
+  </div>
+  <div class="card"><div class="card-h"><h4>Grahas</h4></div><div style="overflow-x:auto"><table>
+    <thead><tr><th>Graha</th><th>Nature</th><th>Karaka</th><th>Signifies</th><th>Day</th><th>Gem</th></tr></thead>
+    <tbody>${Object.entries(R.grahas).map(([n,g])=>`<tr>
+      <td><span class="gname" style="color:${GC(n)}"><i style="background:${GC(n)}"></i>${n}</span><br><span style="color:var(--tx-3);font-size:11px">${g.sanskrit}</span></td>
+      <td style="font-size:11.5px">${g.nature}</td><td style="color:var(--tx-2);font-size:11.5px">${esc(g.karaka)}</td>
+      <td style="color:var(--tx-2);font-size:11.5px">${esc(g.signifies.join(", "))}</td><td style="font-size:11.5px">${g.day}</td><td style="font-size:11.5px">${g.gem}</td></tr>`).join("")}</tbody></table></div></div>`;
+}
+
+/* ---------- saved charts ---------- */
+function readForm(){
+  const d = $("#f-date").value, t = $("#f-time").value || "12:00";
+  const [Y,M,D] = d.split("-").map(Number), [h,m] = t.split(":").map(Number);
+  return {name:$("#f-name").value||"Unnamed", year:Y, month:M, day:D, hour:h, minute:m,
+    latitude:parseFloat($("#f-lat").value), longitude:parseFloat($("#f-lon").value),
+    tz_name:$("#f-tz").value.trim(), place:$("#f-place").value.trim(), ayanamsa:$("#f-ayan").value};
+}
+async function loadSaved(){
+  try{
+    const {clients} = await get("/api/clients");
+    if(!clients.length) return;
+    $("#saved-wrap").style.display = "";
+    $("#f-saved").innerHTML = `<option value="">Start a new chart</option>` +
+      clients.map(c=>`<option value="${c.id}">${esc(c.name)} — ${esc(c.place||"")} ${c.day}/${c.month}/${c.year}</option>`).join("");
+  }catch(_){}
+}
+$("#f-saved").onchange = async e=>{
+  if(!e.target.value) return;
+  try{
+    const b = await get("/api/clients/"+e.target.value);
+    $("#f-name").value = b.name; $("#f-place").value = b.place || "";
+    $("#f-date").value = `${b.year}-${String(b.month).padStart(2,"0")}-${String(b.day).padStart(2,"0")}`;
+    $("#f-time").value = `${String(b.hour).padStart(2,"0")}:${String(b.minute).padStart(2,"0")}`;
+    $("#f-lat").value = b.latitude; $("#f-lon").value = b.longitude;
+    $("#f-tz").value = b.tz_name || ""; $("#f-ayan").value = b.ayanamsa || "Lahiri";
+  }catch(err){ formErr(err.message); }
+};
+$("#btn-save").onclick = async ()=>{
+  const btn = $("#btn-save"); const was = btn.textContent;
+  try{
+    if(!$("#f-date").value){ formErr("Nothing to save without a date of birth."); return; }
+    await post("/api/save", {birth: readForm()});
+    btn.textContent = "Saved"; formErr("");
+    await loadSaved();
+    setTimeout(()=>btn.textContent = was, 1600);
+  }catch(e){ formErr(e.message); }
+};
+
+/* ---------- boot ---------- */
+$("#f-when").value = new Date().toISOString().slice(0,10);
+goto("overview");                      // populates the tab bar and section strip
+$("#drawer").classList.add("on");
+$("#btn-sample").click();
+loadCities();                          // place lookup works with or without a backend
+checkBackend().then(ok=>{ if(ok) loadSaved(); });
+</script>
+</body>
+</html>

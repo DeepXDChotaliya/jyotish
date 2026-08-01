@@ -1,0 +1,7 @@
+pyswisseph>=2.10.3.2
+streamlit>=1.36          # only for the legacy app.py UI
+
+# Optional. The city table in jyotish/places.py already carries an IANA zone
+# for every entry, so this is needed only to resolve a timezone from raw
+# coordinates that are not in that table. It builds slowly from source.
+# timezonefinder>=6.5.0

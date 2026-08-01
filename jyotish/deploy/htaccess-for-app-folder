@@ -1,0 +1,71 @@
+# Jyotish.ai on Apache or LiteSpeed shared hosting (Hostinger).
+#
+# Rename this file to  .htaccess  and put it in the SAME folder as index.html,
+# i.e. the folder you browse to. Example layout for a subfolder deploy:
+#
+#   public_html/jyotish/index.html          <- the app, from ui/
+#   public_html/jyotish/cities.json
+#   public_html/jyotish/icon.svg
+#   public_html/jyotish/manifest.webmanifest
+#   public_html/jyotish/.htaccess           <- this file, renamed
+#   public_html/jyotish/engine/             <- the whole project folder
+#   public_html/jyotish/engine/deploy/index.cgi
+#   public_html/jyotish/engine/jyotish/...
+#
+# Everything under /api/ goes to Python; everything else is served as a file.
+
+Options +ExecCGI -Indexes
+AddHandler cgi-script .cgi
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Work out the folder this .htaccess sits in, so the same file works at the
+  # domain root and inside any subfolder without editing.
+  RewriteBase /
+
+  # Real files and directories are served directly. This keeps index.html,
+  # cities.json, icon.svg and the manifest fast and static.
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Everything under api/ is handled by Python. The captured path becomes
+  # PATH_INFO, which is what the router reads.
+  RewriteRule ^api/(.*)$ engine/deploy/index.cgi/api/$1 [QSA,L]
+
+  # Bare /api also routes through, so /api/health works without a slash.
+  RewriteRule ^api/?$ engine/deploy/index.cgi/api/health [QSA,L]
+</IfModule>
+
+# Never let anyone browse the Python source or the database over HTTP.
+<IfModule mod_authz_core.c>
+  <FilesMatch "\.(py|pyc|db|sqlite3?|md|sh|txt)$">
+    Require all denied
+  </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+  <FilesMatch "\.(py|pyc|db|sqlite3?|md|sh|txt)$">
+    Order allow,deny
+    Deny from all
+  </FilesMatch>
+</IfModule>
+
+# The one exception: the CGI entry point must stay executable.
+<Files "index.cgi">
+  <IfModule mod_authz_core.c>
+    Require all granted
+  </IfModule>
+</Files>
+
+# Correct types for the app's assets.
+AddType application/manifest+json .webmanifest
+AddType image/svg+xml .svg
+AddType application/json .json
+
+# Cache the static shell but never the API.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/svg+xml "access plus 7 days"
+  ExpiresByType application/json "access plus 1 hours"
+</IfModule>

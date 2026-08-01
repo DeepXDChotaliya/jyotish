@@ -1,0 +1,31 @@
+# Reverse proxy for a VPS deployment. certbot will rewrite this for TLS.
+#
+# Serving at the domain root. For a subfolder, change `location /` to
+# `location /jyotish/` and the app resolves its own API paths correctly,
+# because the front end works out its base from the page URL.
+
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    # The engine returns large JSON payloads, around 290 KB per chart.
+    gzip on;
+    gzip_types application/json application/javascript text/css text/html image/svg+xml;
+    gzip_min_length 1024;
+
+    client_max_body_size 1m;
+
+    location / {
+        proxy_pass http://127.0.0.1:8777;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 60s;
+    }
+
+    # There is no login. Uncomment to require a password before anything else.
+    # auth_basic           "Jyotish";
+    # auth_basic_user_file /etc/nginx/.htpasswd;
+}

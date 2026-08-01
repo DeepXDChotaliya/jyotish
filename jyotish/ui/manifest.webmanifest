@@ -1,0 +1,16 @@
+{
+  "name": "Jyotish.ai",
+  "short_name": "Jyotish.ai",
+  "description": "Sidereal Vedic astrology console. Swiss Ephemeris, whole sign houses, Vimshottari to sookshma, nakshatras, ashtakavarga.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#05070A",
+  "theme_color": "#05070A",
+  "categories": ["lifestyle", "education", "utilities"],
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

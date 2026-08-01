@@ -1,0 +1,28 @@
+# systemd unit for a VPS deployment.
+#   cp deploy/jyotish.service /etc/systemd/system/
+#   systemctl daemon-reload && systemctl enable --now jyotish
+
+[Unit]
+Description=Jyotish.ai sidereal astrology engine
+After=network.target
+
+[Service]
+Type=simple
+User=jyotish
+Group=jyotish
+WorkingDirectory=/opt/jyotish/app
+Environment=JYOTISH_HOST=127.0.0.1
+Environment=JYOTISH_PORT=8777
+ExecStart=/opt/jyotish/app/.venv/bin/python /opt/jyotish/app/server.py
+Restart=on-failure
+RestartSec=3
+
+# The process only needs its own directory and the home for the database.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/opt/jyotish
+
+[Install]
+WantedBy=multi-user.target
