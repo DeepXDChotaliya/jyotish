@@ -5,5 +5,3 @@ streamlit>=1.36          # only for the legacy app.py UI
 # for every entry, so this is needed only to resolve a timezone from raw
 # coordinates that are not in that table. It builds slowly from source.
 # timezonefinder>=6.5.0
-
-timezonefinder
