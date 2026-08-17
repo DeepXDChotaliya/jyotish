@@ -22,8 +22,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from jyotish import places, router  # noqa: E402
 
-HOST = os.environ.get("JYOTISH_HOST", "127.0.0.1")
-PORT = int(os.environ.get("JYOTISH_PORT", "8777"))
+HOST = os.environ.get("JYOTISH_HOST", os.environ.get("HOST", "0.0.0.0"))
+PORT = int(os.environ.get("PORT", os.environ.get("JYOTISH_PORT", "8777")))
 UI = Path(__file__).parent / "ui"
 
 
