@@ -5,6 +5,11 @@ astronomy, Parashari classification for everything above that.
 
 ## Run it
 
+**Easiest:** double-click `start.command` in Finder. It builds the environment
+on first run, starts the server and opens the browser.
+
+Or in Terminal:
+
     ./run.sh
 
 First run builds the venv and installs `pyswisseph`. After that it starts in
@@ -19,36 +24,39 @@ from the network and there is nothing to log into.
 
 The older Streamlit UI still works: `streamlit run app.py`.
 
+**Do not open `ui/index.html` by double-clicking it.** Browsers block a
+`file://` page from loading anything, so nothing will work. The app detects
+this and tells you, but the fix is always to start the server and use
+`http://127.0.0.1:8777`.
+
 ## Putting it on a domain
 
 **This is not a static site.** The astronomy comes from Swiss Ephemeris, a
 Python extension that cannot run in a browser. Uploading `index.html` on its
 own gives you a form that computes nothing.
 
-Full instructions, for Hostinger shared hosting and for a VPS, are in
-[deploy/DEPLOY.md](deploy/DEPLOY.md). The short version:
+Full instructions are in [deploy/DEPLOY.md](deploy/DEPLOY.md). On Hostinger, the
+best route is **hPanel → Advanced → Setup Python App**, which runs the app
+through Passenger:
 
-    ./deploy/build.sh jyotish      # or no argument for the domain root
+    ./deploy/build.sh          # writes dist/ in the Passenger layout
 
-That writes `dist/`. Upload its contents to `public_html/jyotish/`, make
-`engine/deploy/index.cgi` executable (755), and run once over SSH:
-
-    pip3 install --user pyswisseph tzdata
-
-Then open `https://your-domain.com/jyotish/api/diag`. It reports the Python
+Upload the contents of `dist/` to an app folder, then in Setup Python App set
+the startup file to `passenger_wsgi.py`, the entry point to `application`, and
+install `requirements.txt`. Open `/api/diag` to confirm — it reports the Python
 version, whether Swiss Ephemeris imported, whether the ayanamsa computes to a
-sane value, and whether the database is writable — so a broken deploy names its
-own problem instead of leaving you guessing.
+sane value, and whether the database is writable, so a broken deploy names its
+own problem.
 
-Routing is handled by the supplied `.htaccess`: real files are served directly,
-everything under `api/` goes to `deploy/index.cgi`, and the Python source and
-database are blocked from direct download. The front end resolves API calls
-against its own directory, so the same build works at the domain root or in any
-subfolder without editing.
+If the plan has no Setup Python App button, `./deploy/build.sh cgi jyotish`
+produces a CGI layout with `.htaccess` routing instead. For a VPS there is a
+systemd unit and an nginx config in `deploy/`. All three run the same routes
+from `jyotish/router.py`; the front end resolves API calls against its own
+directory, so any of them works at the domain root or in a subfolder without
+editing.
 
-For a VPS there is a systemd unit and an nginx config in `deploy/`, which run
-the persistent server instead of CGI and are roughly five times faster per
-chart.
+None of this can go on a purely static host (Netlify, GitHub Pages, a plain
+file upload): Swiss Ephemeris is a Python extension and needs a Python process.
 
 **There is no authentication.** Anything that can reach the app can read and
 write every saved chart, and this is birth data. `deploy/DEPLOY.md` shows how to

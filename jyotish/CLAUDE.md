@@ -65,8 +65,62 @@ Reading layer, added for the console:
                          kaksha division for transit timing. `verify_tables()`
                          self-checks that the seven BAV totals sum to 337, and
                          every chart re-checks it.
-- `jyotish/places.py`    offline city table (281 entries), name to coordinates
-                         and IANA zone
+- `jyotish/panchanga.py` the five limbs with exact transition times solved by
+                         bisection, sunrise/sunset, rahu kaal, choghadiya,
+                         abhijit, plus personal(): the same day read against
+                         one natal Moon via tara bala and chandra bala.
+- `jyotish/places.py`    curated places first, then 168,339 GeoNames places in
+                         `jyotish/data/cities.db` (SQLite, indexed). Alternate
+                         names are indexed, so Bombay, Calcutta, Madras, Poona
+                         and Saigon resolve. Rebuild with
+                         `deploy/build_cities.py`. GeoNames is CC BY 4.0 and
+                         the attribution ships in the Reference page; keep it.
+- `sources/`             eight scanned books extracted to text
+                         (`sources/raw/*.txt`, 2.4M chars), OCR-normalised by
+                         `sources/normalise.py`, and indexed into
+                         `sources/corpus.json` as 525 attributed passages
+                         tagged by topic, graha and house. Regenerate after
+                         adding a book.
+- `jyotish/classical.py` two things, kept strictly apart. `cite()` returns
+                         source passages VERBATIM with the book named, for
+                         findings the app computed independently. Techniques
+                         are hand-implemented rule sets crisp enough to
+                         compute, currently K.N. Rao's four child-timing
+                         transit rules. **Never convert mined OCR prose into
+                         firing rules.** If a passage cannot be computed it
+                         gets quoted, not obeyed.
+- `jyotish/shadbala.py`  the real six-fold strength, after B.V. Raman's Graha
+                         and Bhava Balas: Sthana, Dig, Kala, Chesta, Naisargika
+                         and Drik, plus Bhava Bala and Ishta/Kashta phalas.
+                         Raman's own minimum rupas decide "strong". Two
+                         approximations are declared in the output rather than
+                         hidden: Chesta from speed against mean speed rather
+                         than seeghrochcha tables, and Ayana from true
+                         declination. `engine.graha_strength` remains as the
+                         readable proxy the reading layer uses; shadbala is the
+                         classical figure.
+- `jyotish/decode.py`    the decoder: mechanism in, lived meaning out. Every
+                         insight carries four plain answers, composed from the
+                         actual houses, graha and condition: which part of life
+                         this touches, what actually happens, what to watch
+                         for, what to do. HOUSE_LIFE holds thin/rich/watch/
+                         practice per house; GRAHA_METHOD names how each graha
+                         fails, so the guidance points the right way. A reading
+                         that states a mechanism without a decode is unfinished.
+- `jyotish/plain.py`     the layman layer. A 14-term glossary written to be
+                         read once and understood, a reading order, and
+                         orientation() which writes a chart-specific welcome.
+                         House style: gloss every Sanskrit term on first use,
+                         say the thing then say what it means for the person,
+                         never imply fate.
+- `jyotish/synthesis.py` composite insight and the anti-repetition machinery.
+                         Signals flatten every layer into comparable facts;
+                         rules fire only on two or more signals and must say
+                         something no single signal supports; a Ledger claims
+                         subjects so a fact is stated once across the whole
+                         app; a shape guard stops the same sentence template
+                         printing twice with different nouns. Also the 14 life
+                         dimensions with their classical recipes.
 - `jyotish/api.py`       assembles the JSON payload. Calls everything, computes
                          nothing.
 
@@ -77,13 +131,55 @@ Interfaces:
                          `diagnostics()` behind `/api/diag`.
 - `server.py`            stdlib HTTP server on 127.0.0.1:8777. A socket wrapper
                          around router.py and nothing more.
-- `deploy/`              CGI entry point, .htaccess routing, build script,
-                         systemd unit, nginx config, DEPLOY.md
+- `passenger_wsgi.py`    WSGI entry point for Hostinger's Setup Python App
+                         (Passenger). Same router.handle, so a third host with
+                         no duplicated routes.
+- `deploy/`              build.sh (Passenger and CGI layouts), index.cgi,
+                         .htaccess routing, systemd unit, nginx config,
+                         requirements-deploy.txt, DEPLOY.md
 - `ui/index.html`        the console. Single file, no build step, no CDN.
 - `run.sh`               builds the venv on first run, then starts the server
 - `app.py`               the older Streamlit UI, still works
 
 ## Reading rules
+
+**A rule that restates a lookup is a bug.** `synthesis.compose` may only emit
+an insight built from two or more independent signals. "Your 10th lord is
+strong" is a lookup; "strong but on 22 bindus with no dasha until 2028" is a
+reading. Collect by graha, never per house, or one Venus fact prints twice.
+
+**Say a thing once, across the whole app.** `synthesis.build` runs FIRST in
+`api.reading` and returns its Ledger; that ledger is threaded into
+`narrative.brief` so a fact claimed by synthesis is dropped from the headlines.
+Extend the same way for any new section rather than adding a second dedup.
+
+**Watch template repetition, not just fact repetition.** The shape guard
+fingerprints a claim with grahas and numbers stripped out. Five transit
+readings sharing one visible scaffold read as generated even when every clause
+differs, which is why the transit opener and middle vary per graha. Measured
+word-overlap sits around 23% across synthesis plus headlines; much of that is
+unavoidable shared vocabulary (bindus, period, average), so read output before
+trusting the number.
+
+**State disagreement, never smooth it.** Where the rasi and the divisional
+chart conflict, that conflict is the most informative thing in the chart and
+must be reported as such. Where two dimensions rest on the same house and
+varga, the second cross-references the first rather than repeating it.
+
+**Flag birth-time-sensitive findings.** D10, D24, D30 and D20 change every few
+minutes. When `time_accuracy` is not `exact` those dimensions return
+`confidence: low` with a note. Never present them as firm.
+
+**No blind `except: pass`, anywhere.** A swallowed error already cost one
+live debugging session. Degrade visibly: surface the failure through
+`/api/diag`, or set a flag the caller reports. `places.db_error()` and
+Shadbala's polar `approximated` flag are the pattern to copy.
+
+**Meaning first, mechanism second.** Every card leads with what it means,
+what it affects, what to watch for and what to do. The claim and its evidence
+sit behind a "why the chart says this" toggle. A reader must never meet a bindu
+count before they know what the passage is about. `insightCard()` in the UI is
+the one place this arrangement lives; use it rather than hand-rolling a card.
 
 **Never assert a result without the chain that produced it.** Every verdict,
 strength score and yoga in the API carries its own reasoning, and the UI shows
@@ -110,6 +206,14 @@ reads as a diagnosis or that discourages someone from seeing a professional.
 are disputed between schools and the wrong one produces confident nonsense. Raw
 bindus are reported. If reductions are ever added they must be a labelled
 setting, never a silent default.
+
+**Deploy targets share one router; add hosts, never routes.** `router.handle`
+is the single dispatch. `server.py` (sockets), `passenger_wsgi.py` (Hostinger
+Setup Python App / Passenger, the recommended host) and `deploy/index.cgi` (CGI
+fallback) all wrap it. The Hostinger API and its MCP plugin do DNS, domains, VPS
+and static-site deploys only — they cannot upload a Python app into hosting, so
+the file upload is always manual. `./deploy/build.sh` produces the Passenger
+layout by default, `./deploy/build.sh cgi [folder]` the CGI one.
 
 **The UI must degrade honestly when the backend is absent.** The engine is
 Python plus Swiss Ephemeris and cannot run in a browser, so a static host will
@@ -144,9 +248,7 @@ point is that a page can be skimmed and trusted at any depth.
    correct vara across the sunrise boundary, India 1944 resolving to +06:30 and
    Sri Lanka 1996 to +06:30. That is not the same as a full diff. Do one against
    a chart you know cold before trusting a reading.
-2. Shadbala is not implemented. `engine.graha_strength` is a readable proxy that
-   returns its own factors, not a substitute for the real six-fold calculation.
-3. D60 Shastiamsa missing.
+2. D60 Shastiamsa missing.
 5. Nakshatra work still outstanding: ashtakoota compatibility matching between
    two charts, the nakshatra-level Vimshottari sub-lord (KP style), and yoni
    kuta. The 27-nakshatra corpus, pada to navamsa, tara bala, gandanta and the
